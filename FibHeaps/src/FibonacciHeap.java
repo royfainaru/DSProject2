@@ -333,11 +333,17 @@ public class FibonacciHeap
             return root == null;
         }
 
-        public void setSize(int size) {
+        private void setSize(int size) {
+            if (this.size == size) {
+                return;
+            }
+
             this.size = size;
+
+            // NEED TO SIGNAL ANCESTORS TO updateSize()
         }
 
-        public void increaseSize(int delta) {
+        private void increaseSize(int delta) {
             if (delta < 0) {
                 decreaseSize(delta);
             }
@@ -346,7 +352,7 @@ public class FibonacciHeap
             setSize(newSize);
         }
 
-        public void decreaseSize(int delta) {
+        private void decreaseSize(int delta) {
             if (delta < 0) {
                 increaseSize(delta);
             }
@@ -419,16 +425,16 @@ public class FibonacciHeap
 
 
 
-        // ITERATOR
+        //NODE ITERATOR
         @Override
         public Iterator<HeapNode> iterator() {
-            return new LinkedListIterator(this.root);
+            return new LinkedListIterator(this);
         }
         static class LinkedListIterator implements Iterator<HeapNode> {
             HeapNode current;
 
-            public LinkedListIterator(HeapNode first) {
-                current = first;
+            public LinkedListIterator(LinkedList list) {
+                current = list.root;
             }
 
 
@@ -445,8 +451,58 @@ public class FibonacciHeap
             }
         }
 
+
+
+        // KEY ITERATOR
+        public Iterator<Integer> keyIterator() {
+            return new LinkedListKeyIterator(this);
+        }
+
+        static class LinkedListKeyIterator implements Iterator<Integer> {
+            HeapNode current;
+
+            public LinkedListKeyIterator(LinkedList list) {
+                current = list.root;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public Integer next() {
+                int result = current.key;
+                current = current.next;
+                return result;
+            }
+        }
+
+
         // TESTER
         static class LinkedListTester{
+            void isEmpty() {
+
+            }
+
+            void insertFirst() {
+
+            }
+
+            void getMin() {
+
+            }
+
+            void deleteNode() {
+
+            }
+
+            void deleteMin() {
+
+            }
+
+
+
 
         }
 
