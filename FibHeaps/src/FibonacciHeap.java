@@ -241,7 +241,6 @@ public class FibonacciHeap
         }
 
 
-
         /**
          * Get the number of children of this node
          * @return the number of children of this node
@@ -339,18 +338,26 @@ public class FibonacciHeap
         }
 
         public void increaseSize(int delta) {
+            if (delta < 0) {
+                decreaseSize(delta);
+            }
+
             int newSize = size + delta;
             setSize(newSize);
         }
 
         public void decreaseSize(int delta) {
+            if (delta < 0) {
+                increaseSize(delta);
+            }
+
             increaseSize(-delta);
         }
 
         /*@pre: NOT NULL*/
         public void insertFirst(HeapNode node) {
             if (!isEmpty()) {
-                root.setPrev(node);
+                root.insertPrev(node);
             }
 
             root = node;
@@ -377,14 +384,14 @@ public class FibonacciHeap
         }
 
 
-        private HeapNode updateMin() {
+        private void updateMin() {
             HeapNode minNode = root;
             for (HeapNode node: this) {
                 if (node.key < minNode.key) {
                        minNode = node;
                 }
             }
-            return minNode;
+            this.minNode = minNode;
         }
 
 
@@ -437,6 +444,12 @@ public class FibonacciHeap
                 return result;
             }
         }
+
+        // TESTER
+        static class LinkedListTester{
+
+        }
+
 
     }
 
