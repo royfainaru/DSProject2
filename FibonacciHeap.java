@@ -181,16 +181,157 @@ public class FibonacciHeap
     * (for example HeapNode), do it in this file, not in another file. 
     *  
     */
-    public static class HeapNode{
+   public static class HeapNode{
 
-    	public int key;
+       public int key;
+       public int rank; // Degree
+       public boolean mark;
+       public HeapNode child;
+       public HeapNode parent;
+       public int size;
 
-    	public HeapNode(int key) {
-    		this.key = key;
-    	}
 
-    	public int getKey() {
-    		return this.key;
-    	}
-    }
+       public HeapNode(int key) {
+           this.key = key;
+       }
+
+       public int getKey() {
+           return this.key;
+       }
+
+       public void setKey(int key) {
+           this.key = key;
+       }
+
+       public void decreaseKey(int key) {
+           if this.key <= key {
+               return;
+           }
+           ///
+           setKey(key);
+           // add check to cut tree here.
+       }
+
+       public int getRank() {
+           return this.rank;
+       }
+
+       public void setRank(int rank) {
+           this.rank = rank;
+       }
+
+       public boolean isMarked() {
+           return this.mark;
+       }
+
+       public void setMark(boolean mark) {
+           this.mark = mark;
+       }
+
+       public HeapNode getChild() {
+           return this.child;
+       }
+
+       public void setChild(HeapNode child) {
+           this.child = child;
+       }
+
+       public HeapNode getParent() {
+           return this.parent;
+       }
+
+       public void setParent(HeapNode parent) {
+           this.parent = parent;
+       }
+
+       public HeapNode getPrev() {
+           return this.prev;
+       }
+
+       public void setPrev(HeapNode prev) {
+           this.prev = prev;
+       }
+
+       public HeapNode getNext() {
+           return this.next;
+       }
+
+       public void setNext(HeapNode next) {
+           this.next = next;
+       }
+
+       public boolean hasNext() {
+           return this.next != null;
+       }
+
+       public int getSize() {
+           return this.size;
+       }
+
+       public void setSize(int size) {
+           this.size = size;
+       }
+
+       public void delete() {
+           return;
+       }
+   }
+
+   static class LinkedList {
+       HeapNode root;
+       int size;
+
+       public void setRoot(HeapNode node) {
+           root = node;
+       }
+
+       public void increaseSize() {
+           size++;
+       }
+
+       public void decreaseSize() {
+           size--;
+       }
+
+       /**
+        * Adds a node to the start of the linked list.
+        * This method modifies the root of the list and updates the
+        * size of the list by 1.
+        *
+        * @param node the node to be added to the start of the list.
+        */
+       public void addToStart(HeapNode node) {
+           // Set the previous of the current root to be the node we are adding
+           root.setPrev(node);
+           // set the new node as the root of the linked list
+           setRoot(node);
+           // increase the size of the list by 1
+           increaseSize();
+       }
+
+       public HeapNode deleteFromStart() {
+           setRoot(root.getNext());
+           // not done.
+       }
+
+       public HeapNode delete(int key) {
+           HeapNode p = root;
+
+
+
+           // get the prev node of the deleted node
+           while (p.hasNext() && p.getNext().getKey() != key) {
+               p = p.getNext();
+           }
+
+           // call node's delete function.
+           p.getNext().delete();
+           // actual removal of node from this list
+           p.setNext(p.getNext().getNext());
+           p.getNext().setPrev(p);
+           decreaseSize();
+       }
+
+   }
+
 }
