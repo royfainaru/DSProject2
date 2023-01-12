@@ -1,4 +1,7 @@
+import org.w3c.dom.Node;
+
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * FibonacciHeap
@@ -180,6 +183,7 @@ public class FibonacciHeap
         public HeapNode prev;
         public HeapNode parent;
         public LinkedList children;
+        LinkedList siblings;
 
         /**
          * Constructor of HeapNode
@@ -189,6 +193,12 @@ public class FibonacciHeap
             this.key = key;
             children = new LinkedList();
         }
+
+
+        public String toString() {
+            return Integer.toString(key);
+        }
+
 
         /**
          * Check if this node has a previous node
@@ -306,6 +316,8 @@ public class FibonacciHeap
                 setNext(null);
             }
 
+            siblings = null;
+
             if (hasParent()) {
                 setParent(null);
             }
@@ -327,10 +339,26 @@ public class FibonacciHeap
         int length;
         int size;
         HeapNode minNode;
+        HeapNode parent;
+
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            for (HeapNode node : this) {
+                sb.append(node.toString());
+                sb.append(node.hasNext() ? ", " : ']');
+            }
+            return sb.toString();
+        }
 
 
         public boolean isEmpty() {
             return root == null;
+        }
+
+        public boolean hasParent() {
+            return parent != null;
         }
 
         private void setSize(int size) {
@@ -339,8 +367,6 @@ public class FibonacciHeap
             }
 
             this.size = size;
-
-            // NEED TO SIGNAL ANCESTORS TO updateSize()
         }
 
         private void increaseSize(int delta) {
@@ -350,6 +376,10 @@ public class FibonacciHeap
 
             int newSize = size + delta;
             setSize(newSize);
+
+            if (hasParent()) {
+                parent.siblings.increaseSize(delta);
+            }
         }
 
         private void decreaseSize(int delta) {
@@ -358,6 +388,10 @@ public class FibonacciHeap
             }
 
             increaseSize(-delta);
+
+            if (hasParent()) {
+                parent.siblings.decreaseSize(delta);
+            }
         }
 
         /*@pre: NOT NULL*/
@@ -367,6 +401,7 @@ public class FibonacciHeap
             }
 
             root = node;
+            node.siblings = this;
             length++;
             increaseSize(node.getSize());
 
@@ -481,6 +516,16 @@ public class FibonacciHeap
 
         // TESTER
         static class LinkedListTester{
+            private final NodeFactory nodeFactory = new NodeFactory();
+
+            public LinkedList linkedList(List<Integer> values) {
+                LinkedList linkedList = new LinkedList();
+                for(int value: values) {
+                    linkedList.insertFirst(nodeFactory.createNode(value));
+                }
+                return linkedList;
+            }
+
             void isEmpty() {
 
             }
@@ -507,6 +552,13 @@ public class FibonacciHeap
         }
 
 
+    }
+
+
+    static class NodeFactory {
+        public HeapNode createNode(int key) {
+            return new HeapNode(key);
+        }
     }
 
 }
