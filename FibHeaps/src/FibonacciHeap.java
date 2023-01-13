@@ -222,6 +222,11 @@ public class FibonacciHeap
         }
 
 
+        public int getKey() {
+            return key;
+        }
+
+
         /**
          * Set the previous node of this node
          * @param node the previous node to set
@@ -347,8 +352,9 @@ public class FibonacciHeap
             sb.append('[');
             for (HeapNode node : this) {
                 sb.append(node.toString());
-                sb.append(node.hasNext() ? ", " : ']');
+                sb.append(node.hasNext() ? ", " : "");
             }
+            sb.append(']');
             return sb.toString();
         }
 
@@ -370,10 +376,6 @@ public class FibonacciHeap
         }
 
         private void increaseSize(int delta) {
-            if (delta < 0) {
-                decreaseSize(delta);
-            }
-
             int newSize = size + delta;
             setSize(newSize);
 
@@ -405,21 +407,31 @@ public class FibonacciHeap
             length++;
             increaseSize(node.getSize());
 
-            if (node.key < minNode.key) {
+            if (minNode == null || node.key < minNode.key) {
                 minNode = node;
             }
         }
 
 
-        public HeapNode deleteNode(int key) {
+        private HeapNode deleteNode(HeapNode node) {
+            if (root == node) {
+                root = node.next;
+            }
+            if (node.eject() == minNode) {
+                updateMin();
+            }
+            decreaseSize(node.getSize());
+            length--;
+            return node;
+        }
+
+
+        public HeapNode deleteKey(int key) {
             for (HeapNode node : this) {
                 if (node.key != key) {
                     continue;
                 }
-                // in this section we have the req. node in hand.
-                decreaseSize(node.getSize());
-                length--;
-                return node.eject();
+                return deleteNode(node);
             }
             return null;
         }
@@ -437,27 +449,12 @@ public class FibonacciHeap
 
 
         public HeapNode deleteMin() {
-            HeapNode result = minNode.eject();
-            updateMin();
-            decreaseSize(result.getSize());
-            length--;
-            return result;
+            return deleteNode(minNode);
         }
 
         public HeapNode getMin() {
             return minNode;
         }
-
-
-
-
-
-
-
-
-
-
-
 
 
         //NODE ITERATOR
@@ -486,8 +483,6 @@ public class FibonacciHeap
             }
         }
 
-
-
         // KEY ITERATOR
         public Iterator<Integer> keyIterator() {
             return new LinkedListKeyIterator(this);
@@ -512,46 +507,6 @@ public class FibonacciHeap
                 return result;
             }
         }
-
-
-        // TESTER
-        static class LinkedListTester{
-            private final NodeFactory nodeFactory = new NodeFactory();
-
-            public LinkedList linkedList(List<Integer> values) {
-                LinkedList linkedList = new LinkedList();
-                for(int value: values) {
-                    linkedList.insertFirst(nodeFactory.createNode(value));
-                }
-                return linkedList;
-            }
-
-            void isEmpty() {
-
-            }
-
-            void insertFirst() {
-
-            }
-
-            void getMin() {
-
-            }
-
-            void deleteNode() {
-
-            }
-
-            void deleteMin() {
-
-            }
-
-
-
-
-        }
-
-
     }
 
 
