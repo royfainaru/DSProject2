@@ -5,10 +5,10 @@ public class Tester {
 class LinkedListTester {
     public static void main(String[] args) {
         // Create a node factory instance
-        FibonacciHeap.NodeFactory factory = new FibonacciHeap.NodeFactory();
+        NodeFactory factory = new NodeFactory();
 
         // Create an instance of the linked list
-        FibonacciHeap.LinkedList linkedList = new FibonacciHeap.LinkedList();
+        LinkedList linkedList = new LinkedList();
 
         // Create some nodes with keys
         FibonacciHeap.HeapNode node1 = factory.createNode(5);
@@ -42,7 +42,7 @@ class LinkedListTester {
         System.out.println("Is the linked list empty? " + linkedList.isEmpty()); // should return false
 
 // State tests
-        FibonacciHeap.LinkedList list = new FibonacciHeap.LinkedList();
+        LinkedList list = new LinkedList();
 
         // Initial state
         if (!list.isEmpty()) {
@@ -218,19 +218,18 @@ public class FibonacciHeapTester {
 
         // Test the deleteMin() method
         heap.deleteMin();
-
-        if (heap.contains(3)) {
+        if (heap.findMin().getKey() != 5) {
             throw new AssertionError("4");
         }
 
         // Test the decreaseKey() method
-        heap.decreaseKey(8, 2);
+        heap.decreaseKey(8, 2); // problem with access
         if (heap.findMin().getKey() != 2) {
             throw new AssertionError("5");
         }
 
         // Test the delete() method
-        heap.delete(5);
+        heap.delete(5); // problem with access
         if (heap.findMin().getKey() != 2) {
             throw new AssertionError("6");
         }

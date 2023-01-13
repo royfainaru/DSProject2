@@ -1,14 +1,12 @@
-import org.w3c.dom.Node;
-
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * FibonacciHeap
  * An implementation of a Fibonacci Heap over integers.
  */
-public class FibonacciHeap
+public class FibonacciHeap extends LinkedList
 {
+    private final static NodeFactory nodeFactory = new NodeFactory();
 
     /**
      * public boolean isEmpty()
@@ -17,7 +15,7 @@ public class FibonacciHeap
      */
     public boolean isEmpty()
     {
-        return false; // should be replaced by student code
+        return super.isEmpty();
     }
 
     /**
@@ -28,7 +26,9 @@ public class FibonacciHeap
      */
     public HeapNode insert(int key)
     {
-        return new HeapNode(key); // should be replaced by student code
+        HeapNode node = nodeFactory.createNode(key);
+        insertFirst(node);
+        return node;
     }
 
     /**
@@ -36,10 +36,11 @@ public class FibonacciHeap
      * Deletes the node containing the minimum key.
      *
      */
+
+    @Override
     public void deleteMin()
     {
-        return; // should be replaced by student code
-
+        super.deleteMin();
     }
 
     /**
@@ -49,7 +50,7 @@ public class FibonacciHeap
      */
     public HeapNode findMin()
     {
-        return new HeapNode(678);// should be replaced by student code
+        return getMin();
     }
 
     /**
@@ -59,7 +60,7 @@ public class FibonacciHeap
      */
     public void meld (FibonacciHeap heap2)
     {
-        return; // should be replaced by student code
+        annex(heap2);
     }
 
     /**
@@ -69,7 +70,7 @@ public class FibonacciHeap
      */
     public int size()
     {
-        return -123; // should be replaced by student code
+        return size;
     }
 
     /**
@@ -92,8 +93,15 @@ public class FibonacciHeap
      */
     public void delete(HeapNode x)
     {
-        return; // should be replaced by student code
+        annex(x.rejectChildren());
+        x.eject();
     }
+
+
+    private void cut(HeapNode x) {
+        insertFirst(x.eject());
+    }
+
 
     /**
      * public void decreaseKey(HeapNode x, int delta)
@@ -102,7 +110,10 @@ public class FibonacciHeap
      */
     public void decreaseKey(HeapNode x, int delta)
     {
-        return; // should be replaced by student code
+        x.key -= delta;
+        if (x.hasParent() && x.parent.getKey() > x.key) {
+            cut(x);
+        }
     }
 
     /**
@@ -168,22 +179,14 @@ public class FibonacciHeap
      *
      */
     public static class HeapNode{
-        /**
-         * parent: the node that is the parent
-         * key: the key of this HeapNode
-         * mark: flag to mark the node
-         * next: next node in the doubly linked list
-         * prev: previous node in the doubly linked list
-         * children: linked list of children of this node
-         * size: number of nodes in the subtree rooted at this node (including this node)
-         */
         public int key;
         public boolean mark;
         public HeapNode next;
         public HeapNode prev;
         public HeapNode parent;
         public LinkedList children;
-        LinkedList siblings;
+        public LinkedList siblings;
+        private static final LinkedListFactory listFactory = new LinkedListFactory();
 
         /**
          * Constructor of HeapNode
@@ -191,14 +194,13 @@ public class FibonacciHeap
          */
         public HeapNode(int key) {
             this.key = key;
-            children = new LinkedList();
+            children = listFactory.createList(this);
         }
 
 
         public String toString() {
             return Integer.toString(key);
         }
-
 
         /**
          * Check if this node has a previous node
@@ -212,7 +214,7 @@ public class FibonacciHeap
          * Check if this node has a next node
          * @return true if this node has a next node, false otherwise
          */
-        private boolean hasNext() {
+        public boolean hasNext() {
             return next != null;
         }
 
@@ -243,7 +245,7 @@ public class FibonacciHeap
          * Set the next node of this node
          * @param node the next node to set
          */
-        private void setNext(HeapNode node) {
+        public void setNext(HeapNode node) {
             next = node;
 
             if (node != null) {
@@ -336,184 +338,211 @@ public class FibonacciHeap
         }
 
 
+        public LinkedList rejectChildren() {
+            LinkedList oldChildren = this.children;
+            LinkedList newChildren = listFactory.createList(this);
+            return oldChildren;
+        }
+
+
 
     }
+}
 
-    static class LinkedList implements Iterable<HeapNode> {
-        HeapNode root;
-        int length;
-        int size;
-        HeapNode minNode;
-        HeapNode parent;
+class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
+    FibonacciHeap.HeapNode root;
+    FibonacciHeap.HeapNode tail;
+    int length;
+    int size;
+    FibonacciHeap.HeapNode minNode;
+    FibonacciHeap.HeapNode parent;
 
 
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            for (HeapNode node : this) {
-                sb.append(node.toString());
-                sb.append(node.hasNext() ? ", " : "");
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (FibonacciHeap.HeapNode node : this) {
+            sb.append(node.toString());
+            sb.append(node.hasNext() ? ", " : "");
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    public boolean hasParent() {
+        return parent != null;
+    }
+
+    private void setSize(int size) {
+        if (this.size == size) {
+            return;
+        }
+
+        this.size = size;
+    }
+
+    private void increaseSize(int delta) {
+        int newSize = size + delta;
+        setSize(newSize);
+
+        if (hasParent()) {
+            parent.siblings.increaseSize(delta);
+        }
+    }
+
+    private void decreaseSize(int delta) {
+        if (delta < 0) {
+            increaseSize(delta);
+        }
+
+        increaseSize(-delta);
+
+        if (hasParent()) {
+            parent.siblings.decreaseSize(delta);
+        }
+    }
+
+    /*@pre: NOT NULL*/
+    public void insertFirst(FibonacciHeap.HeapNode node) {
+        if (!isEmpty()) {
+            root.insertPrev(node);
+        } else {
+            tail = node;
+        }
+        node.siblings = this;
+        root = node;
+        length++;
+        increaseSize(node.getSize());
+
+        if (minNode == null || node.key < minNode.key) {
+            minNode = node;
+        }
+    }
+
+
+    private FibonacciHeap.HeapNode deleteNode(FibonacciHeap.HeapNode node) {
+        if (root == node) {
+            root = node.next;
+        }
+        if (tail == node) {
+            tail = node.prev;
+        }
+        node.eject();
+        if (node == minNode) {
+            updateMin();
+        }
+        decreaseSize(node.getSize());
+        length--;
+        return node;
+    }
+
+
+    public FibonacciHeap.HeapNode deleteKey(int key) {
+        for (FibonacciHeap.HeapNode node : this) {
+            if (node.key != key) {
+                continue;
             }
-            sb.append(']');
-            return sb.toString();
+            return deleteNode(node);
         }
+        return null;
+    }
 
 
-        public boolean isEmpty() {
-            return root == null;
-        }
-
-        public boolean hasParent() {
-            return parent != null;
-        }
-
-        private void setSize(int size) {
-            if (this.size == size) {
-                return;
-            }
-
-            this.size = size;
-        }
-
-        private void increaseSize(int delta) {
-            int newSize = size + delta;
-            setSize(newSize);
-
-            if (hasParent()) {
-                parent.siblings.increaseSize(delta);
+    private void updateMin() {
+        FibonacciHeap.HeapNode result = root;
+        for (FibonacciHeap.HeapNode node : this) {
+            if (node.key < result.key) {
+                result = node;
             }
         }
-
-        private void decreaseSize(int delta) {
-            if (delta < 0) {
-                increaseSize(delta);
-            }
-
-            increaseSize(-delta);
-
-            if (hasParent()) {
-                parent.siblings.decreaseSize(delta);
-            }
-        }
-
-        /*@pre: NOT NULL*/
-        public void insertFirst(HeapNode node) {
-            if (!isEmpty()) {
-                root.insertPrev(node);
-            }
-
-            root = node;
-            node.siblings = this;
-            length++;
-            increaseSize(node.getSize());
-
-            if (minNode == null || node.key < minNode.key) {
-                minNode = node;
-            }
-        }
+        minNode = result;
+    }
 
 
-        private HeapNode deleteNode(HeapNode node) {
-            if (root == node) {
-                root = node.next;
-            }
-            if (node.eject() == minNode) {
-                updateMin();
-            }
-            decreaseSize(node.getSize());
-            length--;
-            return node;
+    public void deleteMin() {
+        deleteNode(minNode);
+    }
+
+    public FibonacciHeap.HeapNode getMin() {
+        return minNode;
+    }
+
+    public void annex(LinkedList list2) {
+        tail.setNext(list2.root);
+        tail = list2.tail;
+        length += list2.length;
+    }
+
+
+    // Iterators
+
+    @Override
+    public Iterator<FibonacciHeap.HeapNode> iterator() {
+        return new LinkedListIterator(this);
+    }
+
+    public Iterator<Integer> keyIterator() {
+        return new LinkedListKeyIterator(this);
+    }
+
+    static class LinkedListIterator implements Iterator<FibonacciHeap.HeapNode> {
+        FibonacciHeap.HeapNode current;
+
+        public LinkedListIterator(LinkedList list) {
+            current = list.root;
         }
 
 
-        public HeapNode deleteKey(int key) {
-            for (HeapNode node : this) {
-                if (node.key != key) {
-                    continue;
-                }
-                return deleteNode(node);
-            }
-            return null;
-        }
-
-
-        private void updateMin() {
-            HeapNode minNode = root;
-            for (HeapNode node: this) {
-                if (node.key < minNode.key) {
-                       minNode = node;
-                }
-            }
-            this.minNode = minNode;
-        }
-
-
-        public HeapNode deleteMin() {
-            return deleteNode(minNode);
-        }
-
-        public HeapNode getMin() {
-            return minNode;
-        }
-
-
-        //NODE ITERATOR
         @Override
-        public Iterator<HeapNode> iterator() {
-            return new LinkedListIterator(this);
-        }
-        static class LinkedListIterator implements Iterator<HeapNode> {
-            HeapNode current;
-
-            public LinkedListIterator(LinkedList list) {
-                current = list.root;
-            }
-
-
-            @Override
-            public boolean hasNext() {
-                return current != null;
-            }
-
-            @Override
-            public HeapNode next() {
-                HeapNode result = current;
-                current = current.next;
-                return result;
-            }
+        public boolean hasNext() {
+            return current != null;
         }
 
-        // KEY ITERATOR
-        public Iterator<Integer> keyIterator() {
-            return new LinkedListKeyIterator(this);
-        }
-
-        static class LinkedListKeyIterator implements Iterator<Integer> {
-            HeapNode current;
-
-            public LinkedListKeyIterator(LinkedList list) {
-                current = list.root;
-            }
-
-            @Override
-            public boolean hasNext() {
-                return current != null;
-            }
-
-            @Override
-            public Integer next() {
-                int result = current.key;
-                current = current.next;
-                return result;
-            }
+        @Override
+        public FibonacciHeap.HeapNode next() {
+            FibonacciHeap.HeapNode result = current;
+            current = current.next;
+            return result;
         }
     }
 
+    static class LinkedListKeyIterator implements Iterator<Integer> {
+        FibonacciHeap.HeapNode current;
 
-    static class NodeFactory {
-        public HeapNode createNode(int key) {
-            return new HeapNode(key);
+        public LinkedListKeyIterator(LinkedList list) {
+            current = list.root;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public Integer next() {
+            int result = current.key;
+            current = current.next;
+            return result;
         }
     }
 
+}
+
+class NodeFactory {
+    public FibonacciHeap.HeapNode createNode(int key) {
+        return new FibonacciHeap.HeapNode(key);
+    }
+}
+
+class LinkedListFactory {
+    public LinkedList createList(FibonacciHeap.HeapNode parent) {
+        LinkedList result = new LinkedList();
+        result.parent = parent;
+        return result;
+    }
 }
