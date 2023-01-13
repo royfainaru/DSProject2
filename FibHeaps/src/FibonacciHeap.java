@@ -39,7 +39,7 @@ public class FibonacciHeap extends LinkedList
 
     public void deleteMin()
     {
-        super.deleteMin();
+        delete(findMin());
     }
 
     /**
