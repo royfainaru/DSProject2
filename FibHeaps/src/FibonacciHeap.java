@@ -204,7 +204,7 @@ public class FibonacciHeap extends LinkedList
          * Check if this node has a previous node
          * @return true if this node has a previous node, false otherwise
          */
-        private boolean hasPrev() {
+        public boolean hasPrev() {
             return prev != null;
         }
 
@@ -236,7 +236,7 @@ public class FibonacciHeap extends LinkedList
          * Set the previous node of this node
          * @param node the previous node to set
          */
-        private void setPrev(HeapNode node) {
+        public void setPrev(HeapNode node) {
             prev = node;
 
             if (node != null) {
@@ -307,6 +307,15 @@ public class FibonacciHeap extends LinkedList
             setPrev(node);
         }
 
+
+        public void insertNext(HeapNode node) {
+            if (hasNext()) {
+                next.setPrev(node);
+            }
+
+            setNext(node);
+        }
+
         /**
          * Remove this node from the doubly linked list
          * @return the removed node
@@ -338,7 +347,46 @@ public class FibonacciHeap extends LinkedList
         }
 
 
+        private void plantNext(LinkedList list) {
+            if (list == null || list.isEmpty()) {
+                return;
+            }
 
+            if (hasNext()) {
+                next.setPrev(list.tail);
+            }
+
+            setNext(list.root);
+        }
+
+
+        private void plantPrev(LinkedList list) {
+            if (list == null || list.isEmpty()) {
+                return;
+            }
+
+            if (hasPrev()) {
+                prev.setNext(list.root);
+            }
+
+            setPrev(list.tail);
+        }
+
+
+        public void plantUp() {
+            HeapNode prev = this.prev;
+            HeapNode next = this.next;
+            HeapNode parent = siblings.parent;
+            LinkedList children = eject().rejectChildren();
+
+            children.parent = parent;
+            if (prev != null) {
+                prev.plantNext(children);
+            }
+            else if (next != null) {
+                next.plantPrev(children);
+            }
+        }
     }
 }
 
@@ -466,6 +514,13 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     }
 
     public void annex(LinkedList list2) {
+        if (list2 == null) {
+            return;
+        }
+        list2.parent = this.parent;
+        if (list2.isEmpty()) {
+            return;
+        }
         tail.setNext(list2.root);
         tail = list2.tail;
         length += list2.length;
