@@ -333,7 +333,7 @@ public class FibonacciHeap extends LinkedList
         public LinkedList rejectChildren() {
             LinkedList oldChildren = this.children;
             oldChildren.parent = null;
-            LinkedList newChildren = listFactory.createList(this);
+            children = listFactory.createList(this);
             return oldChildren;
         }
 
