@@ -231,7 +231,7 @@ public class FibonacciHeap
          * iff not, then the node must be in rootList.
          * @return true iff this node has a parent
          */
-        private boolean hasParent() {
+        public boolean hasParent() {
             return getParent() != null;
         }
 
