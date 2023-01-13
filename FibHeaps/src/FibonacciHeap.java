@@ -292,6 +292,11 @@ public class FibonacciHeap
             }
         }
 
+        // NEED TO COMPLETE WITH POINTER TO HEAP
+        public void setMark(boolean mark) {
+            this.mark = mark;
+            // heap.increaseMarks
+        }
 
         ///////////////////////
         // INSERTION METHODS //
@@ -371,7 +376,16 @@ public class FibonacciHeap
             LinkedList oldChildren = this.children;
             oldChildren.parent = null;
             children = listFactory.createList(this);
+            siblings.decreaseSize(oldChildren.size);
             return oldChildren;
+        }
+
+        public void plantUp() {
+            HeapNode next = this.next;
+            LinkedList children = rejectChildren();
+            siblings.deleteNode(this);
+            siblings.plantBefore(children, next);
+            siblings.decreaseSize(1);
         }
     }
 }
@@ -431,7 +445,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         this.size = size;
     }
 
-    private void increaseSize(int delta) {
+    public void increaseSize(int delta) {
         int newSize = size + delta;
         setSize(newSize);
 
@@ -440,7 +454,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
     }
 
-    private void decreaseSize(int delta) {
+    public void decreaseSize(int delta) {
         if (delta < 0) {
             increaseSize(delta);
         }
@@ -489,7 +503,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @param list2 the list to be planted to this list
      * @param nodeAfter the node to be after the planted list. null iff annex
      */
-    public void plant(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
+    public void plantBefore(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
         list2.parent = this.parent;
         if (nodeAfter == null) {
             annex(list2);
@@ -508,7 +522,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // DELETE METHODS //
     ////////////////////
 
-    private FibonacciHeap.HeapNode deleteNode(FibonacciHeap.HeapNode node) {
+    public FibonacciHeap.HeapNode deleteNode(FibonacciHeap.HeapNode node) {
         if (root == node) {
             root = node.next;
         }
