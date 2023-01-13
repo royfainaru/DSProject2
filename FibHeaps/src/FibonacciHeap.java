@@ -4,9 +4,10 @@ import java.util.Iterator;
  * FibonacciHeap
  * An implementation of a Fibonacci Heap over integers.
  */
-public class FibonacciHeap extends LinkedList
+public class FibonacciHeap
 {
     private final static NodeFactory nodeFactory = new NodeFactory();
+    LinkedList rootList = new LinkedList();
 
     /**
      * public boolean isEmpty()
@@ -15,7 +16,7 @@ public class FibonacciHeap extends LinkedList
      */
     public boolean isEmpty()
     {
-        return super.isEmpty();
+        return rootList.isEmpty();
     }
 
     /**
@@ -27,7 +28,7 @@ public class FibonacciHeap extends LinkedList
     public HeapNode insert(int key)
     {
         HeapNode node = nodeFactory.createNode(key);
-        insertFirst(node);
+        rootList.insertFirst(node);
         return node;
     }
 
@@ -49,7 +50,7 @@ public class FibonacciHeap extends LinkedList
      */
     public HeapNode findMin()
     {
-        return getMin();
+        return rootList.getMin();
     }
 
     /**
@@ -59,7 +60,7 @@ public class FibonacciHeap extends LinkedList
      */
     public void meld (FibonacciHeap heap2)
     {
-        annex(heap2);
+        rootList.annex(heap2.rootList);
     }
 
     /**
@@ -69,7 +70,7 @@ public class FibonacciHeap extends LinkedList
      */
     public int size()
     {
-        return size;
+        return rootList.size;
     }
 
     /**
@@ -92,13 +93,13 @@ public class FibonacciHeap extends LinkedList
      */
     public void delete(HeapNode x)
     {
-        annex(x.rejectChildren());
+        rootList.annex(x.rejectChildren());
         x.eject();
     }
 
 
     private void cut(HeapNode x) {
-        insertFirst(x.eject());
+        rootList.insertFirst(x.eject());
     }
 
 
@@ -113,6 +114,7 @@ public class FibonacciHeap extends LinkedList
         if (x.hasParent() && x.getParent().getKey() > x.key) {
             cut(x);
         }
+        // add logic to check if we need to Cascade Cut
     }
 
     /**
@@ -195,10 +197,14 @@ public class FibonacciHeap extends LinkedList
             children = listFactory.createList(this);
         }
 
-
         public String toString() {
             return Integer.toString(key);
         }
+
+
+        ///////////////////
+        // 'HAS' METHODS //
+        ///////////////////
 
         /**
          * Check if this node has a previous node
@@ -216,21 +222,51 @@ public class FibonacciHeap extends LinkedList
             return next != null;
         }
 
-
         private boolean hasParent() {
             return getParent() != null;
         }
 
 
+        ///////////////////
+        // 'GET' METHODS //
+        ///////////////////
+
         public int getKey() {
             return key;
         }
-
 
         public HeapNode getParent() {
             return siblings.parent;
         }
 
+        /**
+         * Get the number of children of this node
+         * @return the number of children of this node
+         */
+        public int rank() {
+            return children.length;
+        }
+
+        /**
+         * Get the number of nodes in the subtree rooted at this node (including this node)
+         * @return the number of nodes in the subtree rooted at this node
+         */
+        public int getSize() {
+            return 1 + children.size;
+        }
+
+        /**
+         * Check if this node is marked
+         * @return true if this node is marked, false otherwise
+         */
+        private boolean getMark() {
+            return mark;
+        }
+
+
+        ///////////////////
+        // 'SET' METHODS //
+        ///////////////////
 
         /**
          * Set the previous node of this node
@@ -257,43 +293,9 @@ public class FibonacciHeap extends LinkedList
         }
 
 
-        /**
-         * Get the number of children of this node
-         * @return the number of children of this node
-         */
-        public int rank() {
-            return children.length;
-        }
-
-        /**
-         * Check if this node is marked
-         * @return true if this node is marked, false otherwise
-         */
-        private boolean isMarked() {
-            return mark;
-        }
-
-        /**
-         * Get the number of nodes in the subtree rooted at this node (including this node)
-         * @return the number of nodes in the subtree rooted at this node
-         */
-        public int getSize() {
-            return 1 + children.size;
-        }
-
-
-        /**
-         * Calculate the number of nodes in the subtree rooted at this node (including this node)
-         * @return the number of nodes in the subtree rooted at this node
-         */
-        public int calculateSize() {
-            int result = 1;
-            for (HeapNode child : children) {
-                result += child.getSize();
-            }
-            return result;
-        }
-
+        ///////////////////////
+        // INSERTION METHODS //
+        ///////////////////////
 
         /**
          * Insert a node as the previous node of this node
@@ -307,7 +309,6 @@ public class FibonacciHeap extends LinkedList
             setPrev(node);
         }
 
-
         public void insertNext(HeapNode node) {
             if (hasNext()) {
                 next.setPrev(node);
@@ -315,6 +316,39 @@ public class FibonacciHeap extends LinkedList
 
             setNext(node);
         }
+
+        public void insertChild(HeapNode node) {
+            children.insertFirst(node);
+        }
+
+        public void plantNext(LinkedList list) {
+            if (list == null || list.isEmpty()) {
+                return;
+            }
+
+            if (hasNext()) {
+                next.setPrev(list.tail);
+            }
+
+            setNext(list.root);
+        }
+
+        public void plantPrev(LinkedList list) {
+            if (list == null || list.isEmpty()) {
+                return;
+            }
+
+            if (hasPrev()) {
+                prev.setNext(list.root);
+            }
+
+            setPrev(list.tail);
+        }
+
+
+        //////////////////////
+        // EJECTION METHODS //
+        //////////////////////
 
         /**
          * Remove this node from the doubly linked list
@@ -333,46 +367,15 @@ public class FibonacciHeap extends LinkedList
             return this;
         }
 
-
-        public void insertChild(HeapNode node) {
-            children.insertFirst(node);
-        }
-
-
         public LinkedList rejectChildren() {
             LinkedList oldChildren = this.children;
             oldChildren.parent = null;
             children = listFactory.createList(this);
             return oldChildren;
         }
-
-
-        public void plantNext(LinkedList list) {
-            if (list == null || list.isEmpty()) {
-                return;
-            }
-
-            if (hasNext()) {
-                next.setPrev(list.tail);
-            }
-
-            setNext(list.root);
-        }
-
-
-        public void plantPrev(LinkedList list) {
-            if (list == null || list.isEmpty()) {
-                return;
-            }
-
-            if (hasPrev()) {
-                prev.setNext(list.root);
-            }
-
-            setPrev(list.tail);
-        }
     }
 }
+
 
 class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     FibonacciHeap.HeapNode root;
@@ -381,7 +384,6 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     int size;
     FibonacciHeap.HeapNode minNode;
     FibonacciHeap.HeapNode parent;
-
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -395,6 +397,10 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     }
 
 
+    ///////////////////
+    // 'HAS' METHODS //
+    ///////////////////
+
     public boolean isEmpty() {
         return root == null;
     }
@@ -402,6 +408,20 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     public boolean hasParent() {
         return parent != null;
     }
+
+
+    ///////////////////
+    // 'GET' METHODS //
+    ///////////////////
+
+    public FibonacciHeap.HeapNode getMin() {
+        return minNode;
+    }
+
+
+    ///////////////////
+    // 'SET' METHODS //
+    ///////////////////
 
     private void setSize(int size) {
         if (this.size == size) {
@@ -432,6 +452,11 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
     }
 
+
+    ///////////////////////
+    // INSERTION METHODS //
+    ///////////////////////
+
     /*@pre: NOT NULL*/
     public void insertFirst(FibonacciHeap.HeapNode node) {
         if (!isEmpty()) {
@@ -449,6 +474,39 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
     }
 
+    public void annex(LinkedList list2) {
+        list2.parent = this.parent;
+        if (list2.isEmpty()) {
+            return;
+        }
+        this.tail.setNext(list2.root);
+        this.tail = list2.tail;
+        this.length += list2.length;
+        this.increaseSize(list2.size);
+    }
+
+    /**
+     * @param list2 the list to be planted to this list
+     * @param nodeAfter the node to be after the planted list. null iff annex
+     */
+    public void plant(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
+        list2.parent = this.parent;
+        if (nodeAfter == null) {
+            annex(list2);
+            return;
+        }
+        nodeAfter.plantPrev(list2);
+        this.length += list2.length;
+        increaseSize(list2.size);
+        if (nodeAfter == this.root) {
+            this.root = list2.root;
+        }
+    }
+
+
+    ////////////////////
+    // DELETE METHODS //
+    ////////////////////
 
     private FibonacciHeap.HeapNode deleteNode(FibonacciHeap.HeapNode node) {
         if (root == node) {
@@ -466,7 +524,6 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         return node;
     }
 
-
     public FibonacciHeap.HeapNode deleteKey(int key) {
         for (FibonacciHeap.HeapNode node : this) {
             if (node.key != key) {
@@ -477,6 +534,14 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         return null;
     }
 
+    public void deleteMin() {
+        deleteNode(minNode);
+    }
+
+
+    ///////////////////
+    // OTHER METHODS //
+    ///////////////////
 
     private void updateMin() {
         FibonacciHeap.HeapNode result = root;
@@ -489,49 +554,9 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     }
 
 
-    public void deleteMin() {
-        deleteNode(minNode);
-    }
-
-    public FibonacciHeap.HeapNode getMin() {
-        return minNode;
-    }
-
-    public void annex(LinkedList list2) {
-        list2.parent = this.parent;
-        if (list2.isEmpty()) {
-            return;
-        }
-        this.tail.setNext(list2.root);
-        this.tail = list2.tail;
-        this.length += list2.length;
-        this.increaseSize(list2.size);
-    }
-
-    /**
-     *
-     * @param list2 the list to be planted to this list
-     * @param nodeAfter the node to be after the planted list. null iff annex
-     * @post this.size is updated
-     * @post this.length is updated
-     */
-    public void plant(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
-        list2.parent = this.parent;
-        if (nodeAfter == null) {
-            annex(list2);
-            return;
-        }
-        nodeAfter.plantPrev(list2);
-        this.length += list2.length;
-        increaseSize(list2.size);
-        if (nodeAfter == this.root) {
-            this.root = list2.root;
-        }
-    }
-
-
-
-    // Iterators
+    ///////////////
+    // ITERATORS //
+    ///////////////
 
     @Override
     public Iterator<FibonacciHeap.HeapNode> iterator() {
@@ -582,6 +607,10 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
             return result;
         }
     }
+
+
+
+    //////////////
 
 }
 
