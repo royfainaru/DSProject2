@@ -9,6 +9,8 @@ public class FibonacciHeap
     private final static NodeFactory nodeFactory = new NodeFactory();
     LinkedList rootList = new LinkedList();
 
+    private static int[] rankCounter;
+
     /**
      * public boolean isEmpty()
      * Returns true if and only if the heap is empty.
@@ -41,16 +43,67 @@ public class FibonacciHeap
     public void deleteMin()
     {
         delete(findMin());
+        reOrganize();
     }
+
+    private void reOrganize() {
+        countersRep();
+        for (int i = 0; i < rankCounter.length - 2; i++) {
+            while (rankCounter[i] > 1) {
+                // Find the first 2 nodes with rank i
+                HeapNode node1 = null;
+                HeapNode node2 = null;
+                for (FibonacciHeap.HeapNode n : this) {
+                    if (n.rank() == i) {
+                        // Makes sure to only take 2
+                        if (null != node1) {
+                            node2 = n;
+                            break;
+                        } else {
+                            node1 = n;
+                        }
+                    }
+                }
+
+                HeapNode tmpparent;
+                HeapNode tmpchild;
+                if (node1.key < node2.key) {
+                    tmpparent = node1;
+                    tmpchild = node2;
+                } else {
+                    tmpparent = node2;
+                    tmpchild = node1;
+                }
+
+                tmpparent.insertChild(tmpchild.eject());
+
+                updateCounter(i);
+
+            }
+        }
+    }
+
+    private void updateCounter(int i) {
+        rankCounter[i] -= 2;
+        rankCounter[i+1]++;
+    }
+
+
 
     /**
      * public HeapNode findMin()
      * Returns the node of the heap whose key is minimal, or null if the heap is empty.
      *
      */
+<<<<<<< HEAD
+
+    public HeapNode findMin() {
+        return getMin();
+=======
     public HeapNode findMin()
     {
         return rootList.getMin();
+>>>>>>> 8e2f355b80d762f07d962e78d919e041235f3721
     }
 
     /**
@@ -58,9 +111,14 @@ public class FibonacciHeap
      * Melds heap2 with the current heap.
      *
      */
+<<<<<<< HEAD
+    public void meld (FibonacciHeap heap2) {
+        annex(heap2);
+=======
     public void meld (FibonacciHeap heap2)
     {
         rootList.annex(heap2.rootList);
+>>>>>>> 8e2f355b80d762f07d962e78d919e041235f3721
     }
 
     /**
@@ -82,7 +140,22 @@ public class FibonacciHeap
     public int[] countersRep()
     {
         int[] arr = new int[100];
-        return arr; //	 to be replaced by student code
+        for (FibonacciHeap.HeapNode n : this) {
+            arr[n.rank()]++;
+        }
+        rankCounter = arr;
+        return arr;
+    }
+
+    private int getMaxRank() {
+        int max = 0;
+        for (FibonacciHeap.HeapNode n : this) {
+            if (n.rank() > max) {
+                max = n.rank();
+            }
+        }
+
+        return max;
     }
 
     /**
