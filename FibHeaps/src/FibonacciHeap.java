@@ -347,7 +347,7 @@ public class FibonacciHeap extends LinkedList
         }
 
 
-        private void plantNext(LinkedList list) {
+        public void plantNext(LinkedList list) {
             if (list == null || list.isEmpty()) {
                 return;
             }
@@ -360,7 +360,7 @@ public class FibonacciHeap extends LinkedList
         }
 
 
-        private void plantPrev(LinkedList list) {
+        public void plantPrev(LinkedList list) {
             if (list == null || list.isEmpty()) {
                 return;
             }
@@ -370,22 +370,6 @@ public class FibonacciHeap extends LinkedList
             }
 
             setPrev(list.tail);
-        }
-
-
-        public void plantUp() {
-            HeapNode prev = this.prev;
-            HeapNode next = this.next;
-            HeapNode parent = siblings.parent;
-            LinkedList children = eject().rejectChildren();
-
-            children.parent = parent;
-            if (prev != null) {
-                prev.plantNext(children);
-            }
-            else if (next != null) {
-                next.plantPrev(children);
-            }
         }
     }
 }
@@ -514,17 +498,37 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     }
 
     public void annex(LinkedList list2) {
-        if (list2 == null) {
-            return;
-        }
         list2.parent = this.parent;
         if (list2.isEmpty()) {
             return;
         }
-        tail.setNext(list2.root);
-        tail = list2.tail;
-        length += list2.length;
+        this.tail.setNext(list2.root);
+        this.tail = list2.tail;
+        this.length += list2.length;
+        this.increaseSize(list2.size);
     }
+
+    /**
+     *
+     * @param list2 the list to be planted to this list
+     * @param nodeAfter the node to be after the planted list. null iff annex
+     * @post this.size is updated
+     * @post this.length is updated
+     */
+    public void plant(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
+        list2.parent = this.parent;
+        if (nodeAfter == null) {
+            annex(list2);
+            return;
+        }
+        nodeAfter.plantPrev(list2);
+        this.length += list2.length;
+        increaseSize(list2.size);
+        if (nodeAfter == this.root) {
+            this.root = list2.root;
+        }
+    }
+
 
 
     // Iterators
