@@ -53,7 +53,7 @@ public class FibonacciHeap
                 // Find the first 2 nodes with rank i
                 HeapNode node1 = null;
                 HeapNode node2 = null;
-                for (FibonacciHeap.HeapNode n : this) {
+                for (FibonacciHeap.HeapNode n : this.rootList) {
                     if (n.rank() == i) {
                         // Makes sure to only take 2
                         if (null != node1) {
@@ -75,6 +75,10 @@ public class FibonacciHeap
                     tmpchild = node1;
                 }
 
+                //EJECT NOT WORKING - need to take care of root case (root pointer stays at ejected node)
+                if (tmpchild.key == rootList.root.key) {
+                    rootList.root = tmpchild.next;
+                }
                 tmpparent.insertChild(tmpchild.eject());
 
                 updateCounter(i);
@@ -95,15 +99,9 @@ public class FibonacciHeap
      * Returns the node of the heap whose key is minimal, or null if the heap is empty.
      *
      */
-<<<<<<< HEAD
-
-    public HeapNode findMin() {
-        return getMin();
-=======
     public HeapNode findMin()
     {
         return rootList.getMin();
->>>>>>> 8e2f355b80d762f07d962e78d919e041235f3721
     }
 
     /**
@@ -111,14 +109,9 @@ public class FibonacciHeap
      * Melds heap2 with the current heap.
      *
      */
-<<<<<<< HEAD
-    public void meld (FibonacciHeap heap2) {
-        annex(heap2);
-=======
     public void meld (FibonacciHeap heap2)
     {
         rootList.annex(heap2.rootList);
->>>>>>> 8e2f355b80d762f07d962e78d919e041235f3721
     }
 
     /**
@@ -140,7 +133,7 @@ public class FibonacciHeap
     public int[] countersRep()
     {
         int[] arr = new int[100];
-        for (FibonacciHeap.HeapNode n : this) {
+        for (FibonacciHeap.HeapNode n : this.rootList) {
             arr[n.rank()]++;
         }
         rankCounter = arr;
@@ -149,7 +142,7 @@ public class FibonacciHeap
 
     private int getMaxRank() {
         int max = 0;
-        for (FibonacciHeap.HeapNode n : this) {
+        for (FibonacciHeap.HeapNode n : this.rootList) {
             if (n.rank() > max) {
                 max = n.rank();
             }
