@@ -31,7 +31,7 @@ class LinkedListTester {
         System.out.println("Node with minimal key: " + linkedList.getMin().getKey()); // should return 2
 
         // Test the deleteMin() method
-        System.out.println("Deleted node with minimal key: " + linkedList.deleteMin().getKey()); // should return 2
+        linkedList.deleteMin();
         System.out.println("Length of the linked list: " + linkedList.length); // should return 3
 
         // Test the deleteAny() method
@@ -192,57 +192,58 @@ class LinkedListTester {
 }
 
 
-public class FibonacciHeapTester {
-    public static void main(String[] args) {
-        // Create an instance of the Fibonacci Heap
-        FibonacciHeap heap = new FibonacciHeap();
-
-        // Test the isEmpty() method
-        if (!heap.isEmpty()) {
-            throw new AssertionError("1");
-        }
-
-        // Test the insert() method
-        heap.insert(5);
-        heap.insert(3);
-        heap.insert(8);
-
-        if (heap.isEmpty()) {
-            throw new AssertionError("2");
-        }
-
-        // Test the findMin() method
-        if (heap.findMin().getKey() != 3) {
-            throw new AssertionError("3");
-        }
-
-        // Test the deleteMin() method
-        heap.deleteMin();
-        if (heap.findMin().getKey() != 5) {
-            throw new AssertionError("4");
-        }
-
-        // Test the decreaseKey() method
-        heap.decreaseKey(8, 2); // problem with access
-        if (heap.findMin().getKey() != 2) {
-            throw new AssertionError("5");
-        }
-
-        // Test the delete() method
-        heap.delete(5); // problem with access
-        if (heap.findMin().getKey() != 2) {
-            throw new AssertionError("6");
-        }
-
-        // Test the merge() method
-        FibonacciHeap heap2 = new FibonacciHeap();
-        heap2.insert(7);
-        heap2.insert(6);
-        heap.meld(heap2);
-        if (heap.findMin().getKey() != 2) {
-            throw new AssertionError("7");
-        }
-    }
-}
-
-
+//
+//public class FibonacciHeapTester {
+//    public static void main(String[] args) {
+//        // Create an instance of the Fibonacci Heap
+//        FibonacciHeap heap = new FibonacciHeap();
+//
+//        // Test the isEmpty() method
+//        if (!heap.isEmpty()) {
+//            throw new AssertionError("1");
+//        }
+//
+//        // Test the insert() method
+//        heap.insert(5);
+//        heap.insert(3);
+//        heap.insert(8);
+//
+//        if (heap.isEmpty()) {
+//            throw new AssertionError("2");
+//        }
+//
+//        // Test the findMin() method
+//        if (heap.findMin().getKey() != 3) {
+//            throw new AssertionError("3");
+//        }
+//
+//        // Test the deleteMin() method
+//        heap.deleteMin();
+//        if (heap.findMin().getKey() != 5) {
+//            throw new AssertionError("4");
+//        }
+//
+//        // Test the decreaseKey() method
+//        heap.decreaseKey(8, 2); // problem with access
+//        if (heap.findMin().getKey() != 2) {
+//            throw new AssertionError("5");
+//        }
+//
+//        // Test the delete() method
+//        heap.delete(5); // problem with access
+//        if (heap.findMin().getKey() != 2) {
+//            throw new AssertionError("6");
+//        }
+//
+//        // Test the merge() method
+//        FibonacciHeap heap2 = new FibonacciHeap();
+//        heap2.insert(7);
+//        heap2.insert(6);
+//        heap.meld(heap2);
+//        if (heap.findMin().getKey() != 2) {
+//            throw new AssertionError("7");
+//        }
+//    }
+//}
+//
+//

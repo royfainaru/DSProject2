@@ -37,7 +37,6 @@ public class FibonacciHeap extends LinkedList
      *
      */
 
-    @Override
     public void deleteMin()
     {
         super.deleteMin();
@@ -111,7 +110,7 @@ public class FibonacciHeap extends LinkedList
     public void decreaseKey(HeapNode x, int delta)
     {
         x.key -= delta;
-        if (x.hasParent() && x.parent.getKey() > x.key) {
+        if (x.hasParent() && x.getParent().getKey() > x.key) {
             cut(x);
         }
     }
@@ -183,7 +182,6 @@ public class FibonacciHeap extends LinkedList
         public boolean mark;
         public HeapNode next;
         public HeapNode prev;
-        public HeapNode parent;
         public LinkedList children;
         public LinkedList siblings;
         private static final LinkedListFactory listFactory = new LinkedListFactory();
@@ -220,12 +218,17 @@ public class FibonacciHeap extends LinkedList
 
 
         private boolean hasParent() {
-            return parent != null;
+            return getParent() != null;
         }
 
 
         public int getKey() {
             return key;
+        }
+
+
+        public HeapNode getParent() {
+            return siblings.parent;
         }
 
 
@@ -251,10 +254,6 @@ public class FibonacciHeap extends LinkedList
             if (node != null) {
                 node.prev = this;
             }
-        }
-
-        private void setParent(HeapNode node) {
-            parent = node;
         }
 
 
@@ -317,18 +316,11 @@ public class FibonacciHeap extends LinkedList
                 prev.setNext(next);
                 setPrev(null);
             }
-
             if (hasNext()) {
                 next.setPrev(prev);
                 setNext(null);
             }
-
             siblings = null;
-
-            if (hasParent()) {
-                setParent(null);
-            }
-
             return this;
         }
 
@@ -340,6 +332,7 @@ public class FibonacciHeap extends LinkedList
 
         public LinkedList rejectChildren() {
             LinkedList oldChildren = this.children;
+            oldChildren.parent = null;
             LinkedList newChildren = listFactory.createList(this);
             return oldChildren;
         }
