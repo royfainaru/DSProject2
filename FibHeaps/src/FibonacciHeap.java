@@ -197,6 +197,10 @@ public class FibonacciHeap
             children = listFactory.createList(this);
         }
 
+        /**
+         * String representation of HeapNode
+         * @return the key of the node
+         */
         public String toString() {
             return Integer.toString(key);
         }
@@ -222,6 +226,11 @@ public class FibonacciHeap
             return next != null;
         }
 
+        /**
+         * Check if this node has a parent.
+         * iff not, then the node must be in rootList.
+         * @return true iff this node has a parent
+         */
         private boolean hasParent() {
             return getParent() != null;
         }
@@ -231,10 +240,16 @@ public class FibonacciHeap
         // 'GET' METHODS //
         ///////////////////
 
+        /**
+         * @return the key of this node
+         */
         public int getKey() {
             return key;
         }
 
+        /**
+         * @return the parent of the sibling LinkedList
+         */
         public HeapNode getParent() {
             return siblings.parent;
         }
@@ -292,6 +307,10 @@ public class FibonacciHeap
             }
         }
 
+        /**
+         * sets the mark of the node according to the parameter given.
+         * @param mark is the boolean value to set
+         */
         // NEED TO COMPLETE WITH POINTER TO HEAP
         public void setMark(boolean mark) {
             this.mark = mark;
@@ -313,7 +332,10 @@ public class FibonacciHeap
 
             setPrev(node);
         }
-
+        /**
+         * Insert a node as the next node of this node
+         * @param node the node to insert as the next node
+         */
         public void insertNext(HeapNode node) {
             if (hasNext()) {
                 next.setPrev(node);
@@ -322,10 +344,19 @@ public class FibonacciHeap
             setNext(node);
         }
 
+        /**
+         * Insert a node to the header of the children list of this node
+         * @param node the new child of this node
+         */
         public void insertChild(HeapNode node) {
             children.insertFirst(node);
         }
 
+        /**
+         * Plant a linked list next to this node.
+         * Updates length, size, and relevant node pointers.
+         * @param list the linked list to be planted next to this node
+         */
         public void plantNext(LinkedList list) {
             if (list == null || list.isEmpty()) {
                 return;
@@ -338,6 +369,11 @@ public class FibonacciHeap
             setNext(list.root);
         }
 
+        /**
+         * Plant a linked list previous to this node.
+         * Updates length, size, and relevant node pointers.
+         * @param list the linked list to be planted before this node
+         */
         public void plantPrev(LinkedList list) {
             if (list == null || list.isEmpty()) {
                 return;
@@ -372,6 +408,13 @@ public class FibonacciHeap
             return this;
         }
 
+        /**
+         * disconnects the children list from this node,
+         * creates and assigns a new children list to this node,
+         * decreases the sibling list's size,
+         * and returns the list of original children of this node.
+         * @return the original children linked list of this node
+         */
         public LinkedList rejectChildren() {
             LinkedList oldChildren = this.children;
             oldChildren.parent = null;
@@ -380,6 +423,12 @@ public class FibonacciHeap
             return oldChildren;
         }
 
+        /**
+         * Rejects the children of this node,
+         * deletes this node from the siblings list,
+         * plants the children list in place of this node's original position,
+         * decreases the siblings list's size by 1
+         */
         public void plantUp() {
             HeapNode next = this.next;
             LinkedList children = rejectChildren();
@@ -399,6 +448,10 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     FibonacciHeap.HeapNode minNode;
     FibonacciHeap.HeapNode parent;
 
+    /**
+     * String representation of LinkedList
+     * @return [key_root, key_2, ..., key_tail]
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -415,10 +468,16 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // 'HAS' METHODS //
     ///////////////////
 
+    /**
+     * @return true iff root is null
+     */
     public boolean isEmpty() {
         return root == null;
     }
 
+    /**
+     * @return true iff parent is not null
+     */
     public boolean hasParent() {
         return parent != null;
     }
@@ -428,6 +487,9 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // 'GET' METHODS //
     ///////////////////
 
+    /**
+     * @return the minimal node from a designated pointer 'minNode'
+     */
     public FibonacciHeap.HeapNode getMin() {
         return minNode;
     }
@@ -437,6 +499,10 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // 'SET' METHODS //
     ///////////////////
 
+    /**
+     * Set the size of this list
+     * @param size the new size of the list
+     */
     private void setSize(int size) {
         if (this.size == size) {
             return;
@@ -445,6 +511,11 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         this.size = size;
     }
 
+    /**
+     * Calculate newSize = currentSize + delta and call setSize(newSize),
+     * recursively call the parent's siblings' increaseSize with delta
+     * @param delta the increment in this list size
+     */
     public void increaseSize(int delta) {
         int newSize = size + delta;
         setSize(newSize);
@@ -454,6 +525,11 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
     }
 
+    /**
+     * Call increaseSize with -delta,
+     * recursively call the parent's siblings' increaseSize with delta
+     * @param delta a positive decrement of this list size
+     */
     public void decreaseSize(int delta) {
         if (delta < 0) {
             increaseSize(delta);
@@ -471,7 +547,14 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // INSERTION METHODS //
     ///////////////////////
 
-    /*@pre: NOT NULL*/
+    /**
+     * Insert the parameter node as the header of this list,
+     * set the parameter node's siblings list to this list,
+     * update root attribute to the parameter node, and also the tail node if necessary.
+     * updates length and size of this list
+     * updates minNode pointer of this list, if necessary.
+     * @param node the node to be inserted at the header of this list
+     */
     public void insertFirst(FibonacciHeap.HeapNode node) {
         if (!isEmpty()) {
             root.insertPrev(node);
@@ -488,12 +571,25 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
     }
 
+    /**
+     * Concatenate the param 'list2' to the tail of this list.
+     * updates list pointers as relevant, including tail, root, and minNode
+     * updates length and size of this list
+     * @param list2 the list to be annexed to this list
+     */
     public void annex(LinkedList list2) {
         list2.parent = this.parent;
         if (list2.isEmpty()) {
             return;
         }
-        this.tail.setNext(list2.root);
+        if (this.isEmpty()) {
+            this.root = list2.root;
+            this.minNode = list2.minNode;
+        }
+        else {
+            this.tail.setNext(list2.root);
+            this.minNode = (this.minNode.key < list2.minNode.key) ? this.minNode : list2.minNode;
+        }
         this.tail = list2.tail;
         this.length += list2.length;
         this.increaseSize(list2.size);
