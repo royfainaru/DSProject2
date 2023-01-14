@@ -108,6 +108,18 @@ public class HeapNode{
     }
 
 
+    public HeapNode findRecursive(int key) {
+        if (key == this.getKey()) {
+            return this;
+        }
+
+        if (children.isEmpty()) {
+            return null;
+        }
+
+        return children.findRecursive(key);
+    }
+
     ///////////////////
     // 'SET' METHODS //
     ///////////////////
@@ -276,6 +288,8 @@ public class HeapNode{
     public HeapNode cut() {
         return siblings.cutNode(this);
     }
+
+
 }
 
 class NodeFactory {

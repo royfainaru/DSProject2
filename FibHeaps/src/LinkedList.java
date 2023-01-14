@@ -55,6 +55,16 @@ public class LinkedList implements Iterable<HeapNode> {
     }
 
 
+    public HeapNode findRecursive(int key) {
+        for (HeapNode node : this) {
+            HeapNode retrievedNode = node.findRecursive(key);
+            if (retrievedNode != null) {
+                return retrievedNode;
+            }
+        }
+        return null;
+    }
+
     ///////////////////
     // 'SET' METHODS //
     ///////////////////
@@ -204,10 +214,9 @@ public class LinkedList implements Iterable<HeapNode> {
         return null;
     }
 
-    public void cutKey() {
+    public void cutMin() {
         cutNode(minNode);
     }
-
 
     ///////////////////
     // OTHER METHODS //
