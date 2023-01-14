@@ -11,10 +11,10 @@ class LinkedListTester {
         LinkedList linkedList = new LinkedList();
 
         // Create some nodes with keys
-        FibonacciHeap.HeapNode node1 = factory.createNode(5);
-        FibonacciHeap.HeapNode node2 = factory.createNode(2);
-        FibonacciHeap.HeapNode node3 = factory.createNode(7);
-        FibonacciHeap.HeapNode node4 = factory.createNode(3);
+        HeapNode node1 = factory.createNode(5);
+        HeapNode node2 = factory.createNode(2);
+        HeapNode node3 = factory.createNode(7);
+        HeapNode node4 = factory.createNode(3);
 
         // Test the isEmpty() method
         System.out.println("Is the linked list empty? " + linkedList.isEmpty()); // should return true
