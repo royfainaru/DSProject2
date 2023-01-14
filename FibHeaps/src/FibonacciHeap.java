@@ -6,7 +6,7 @@ import java.util.Iterator;
  */
 public class FibonacciHeap
 {
-    private final NodeFactory nodeFactory = new NodeFactory(this);
+    private final static NodeFactory nodeFactory = new NodeFactory();
     LinkedList rootList = new LinkedList();
 
     private static int[] rankCounter;
