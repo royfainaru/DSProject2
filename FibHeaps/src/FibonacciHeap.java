@@ -6,10 +6,9 @@ import java.util.Iterator;
  */
 public class FibonacciHeap
 {
-    private final static NodeFactory nodeFactory = new NodeFactory();
+    private final NodeFactory nodeFactory = new NodeFactory(this);
     LinkedList rootList = new LinkedList();
 
-    private static int[] rankCounter;
 
     /**
      * public boolean isEmpty()
@@ -40,14 +39,16 @@ public class FibonacciHeap
      *
      */
 
-    public void deleteMin()
-    {
+    public void deleteMin() {
+        if (isEmpty()) {
+            return;
+        }
         delete(findMin());
         reOrganize();
     }
 
     private void reOrganize() {
-        countersRep();
+        int[] rankCounter = countersRep();
         for (int i = 0; i < rankCounter.length - 2; i++) {
             while (rankCounter[i] > 1) {
                 // Find the first 2 nodes with rank i
@@ -75,24 +76,17 @@ public class FibonacciHeap
                     tmpchild = node1;
                 }
 
-                //EJECT NOT WORKING - need to take care of root case (root pointer stays at ejected node)
-                if (tmpchild.key == rootList.root.key) {
-                    rootList.root = tmpchild.next;
-                }
-                tmpparent.insertChild(tmpchild.eject());
-
-                updateCounter(i);
+                tmpparent.insertChild(rootList.deleteNode(tmpchild));
+                updateCounter(i, rankCounter);
 
             }
         }
     }
 
-    private void updateCounter(int i) {
+    private void updateCounter(int i, int[] rankCounter) {
         rankCounter[i] -= 2;
         rankCounter[i+1]++;
     }
-
-
 
     /**
      * public HeapNode findMin()
@@ -136,7 +130,6 @@ public class FibonacciHeap
         for (HeapNode n : this.rootList) {
             arr[n.rank()]++;
         }
-        rankCounter = arr;
         return arr;
     }
 
@@ -157,10 +150,11 @@ public class FibonacciHeap
      * It is assumed that x indeed belongs to the heap.
      *
      */
-    public void delete(HeapNode x)
-    {
-        rootList.annex(x.rejectChildren());
-        x.eject();
+    public void delete(HeapNode node) {
+        if (null == node) {
+            return;
+        }
+        this.rootList.deleteNode(node);
     }
 
 
