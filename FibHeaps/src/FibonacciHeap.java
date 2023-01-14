@@ -43,7 +43,8 @@ public class FibonacciHeap
         if (isEmpty()) {
             return;
         }
-        delete(findMin());
+        rootList.deleteMinLIOR();
+//        delete(findMin());
         reOrganize();
     }
 
@@ -76,7 +77,7 @@ public class FibonacciHeap
                     tmpchild = node1;
                 }
 
-                tmpparent.insertChild(rootList.deleteNode(tmpchild));
+                tmpparent.insertChild(rootList.cutNode(tmpchild));
                 updateCounter(i, rankCounter);
 
             }
@@ -154,7 +155,7 @@ public class FibonacciHeap
         if (null == node) {
             return;
         }
-        this.rootList.deleteNode(node);
+        node.delete();
     }
 
 
