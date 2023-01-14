@@ -260,15 +260,21 @@ public class HeapNode{
      * plants the children list in place of this node's original position,
      * decreases the siblings list's size by 1
      */
-    public void plantUp() {
+    public HeapNode delete() {
         if (siblings == null) {
             throw new RuntimeException("Cannot plant up for a node with no siblings pointer");
         }
         HeapNode next = this.next;
         LinkedList children = rejectChildren();
-        siblings.deleteNode(this);
+        HeapNode result = siblings.cutNode(this);
         siblings.plantBefore(children, next);
         siblings.decreaseSize(1);
+        return result;
+    }
+
+
+    public HeapNode cut() {
+        return siblings.cutNode(this);
     }
 }
 
