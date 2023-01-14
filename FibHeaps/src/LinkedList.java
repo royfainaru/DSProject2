@@ -80,7 +80,7 @@ public class LinkedList implements Iterable<HeapNode> {
         int newSize = size + delta;
         setSize(newSize);
 
-        if (hasParent()) {
+        if (hasParent() && parent.siblings != null) {
             parent.siblings.increaseSize(delta);
         }
     }
@@ -97,7 +97,7 @@ public class LinkedList implements Iterable<HeapNode> {
 
         increaseSize(-delta);
 
-        if (hasParent()) {
+        if (hasParent() && parent.siblings != null) {
             parent.siblings.decreaseSize(delta);
         }
     }

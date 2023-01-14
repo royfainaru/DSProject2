@@ -1,11 +1,16 @@
 public class Tester {
 
+    public static void main(String[] args) {
+        HeapNodeTester.children();
+    }
+
+
 }
 
 class LinkedListTester {
     public static void main(String[] args) {
         // Create a node factory instance
-        NodeFactory factory = new NodeFactory();
+        NodeFactory factory = new NodeFactory(null);
 
         // Create an instance of the linked list
         LinkedList linkedList = new LinkedList();
@@ -188,6 +193,65 @@ class LinkedListTester {
         if (list.getMin() != null) {
             throw new RuntimeException("29");
         }
+    }
+}
+
+
+class HeapNodeTester {
+    public static void inserts() {
+        // Create an instance of a heap
+        FibonacciHeap heap = new FibonacciHeap();
+
+        // Create a node factory
+        NodeFactory nodeFactory = new NodeFactory(heap);
+
+        // Create a few node instances
+        HeapNode node1 = nodeFactory.createNode(5);
+        HeapNode node2 = nodeFactory.createNode(7);
+        HeapNode node3 = nodeFactory.createNode(3);
+        HeapNode node4 = nodeFactory.createNode(6);
+        HeapNode node5 = nodeFactory.createNode(10);
+        HeapNode node6 = nodeFactory.createNode(8);
+        HeapNode node7 = nodeFactory.createNode(9);
+        HeapNode node8 = nodeFactory.createNode(15);
+
+        // Create a node chain
+        node1.setNext(node2);
+        node2.setNext(node3);
+        node3.setNext(node4);
+        node4.setNext(node5);
+
+        // Insert a node in the middle of the chain using insertNext
+        node2.insertNext(node6);
+
+        // Insert a node in the middle of the chain using insertPrev
+        node2.insertPrev(node7);
+
+        // Insert a node to the header of the chain using insertPre
+        node1.insertPrev(node8);
+    }
+
+
+    public static void children() {
+        // Create an instance of a heap
+        FibonacciHeap heap = new FibonacciHeap();
+
+        // Create a node factory
+        NodeFactory nodeFactory = new NodeFactory(heap);
+
+        // Create node instances
+        HeapNode node1 = nodeFactory.createNode(50);
+        HeapNode node2 = nodeFactory.createNode(10);
+        HeapNode node3 = nodeFactory.createNode(20);
+        HeapNode node4 = nodeFactory.createNode(30);
+
+        // Insert children to node1
+        node1.insertChild(node2);
+        node1.insertChild(node3);
+        node1.insertChild(node4);
+
+        // Reject children
+        LinkedList children = node1.rejectChildren();
     }
 }
 

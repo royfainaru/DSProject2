@@ -77,6 +77,9 @@ public class HeapNode{
      * @return the parent of the sibling LinkedList
      */
     public HeapNode getParent() {
+        if (siblings == null) {
+            return null;
+        }
         return siblings.parent;
     }
 
@@ -237,7 +240,7 @@ public class HeapNode{
     /**
      * disconnects the children list from this node,
      * creates and assigns a new children list to this node,
-     * decreases the sibling list's size,
+     * decreases the sibling list's size (if siblings != null),
      * and returns the list of original children of this node.
      * @return the original children linked list of this node
      */
@@ -245,7 +248,9 @@ public class HeapNode{
         LinkedList oldChildren = this.children;
         oldChildren.parent = null;
         children = listFactory.createList(this);
-        siblings.decreaseSize(oldChildren.size);
+        if (siblings != null) {
+            siblings.decreaseSize(oldChildren.size);
+        }
         return oldChildren;
     }
 
@@ -256,6 +261,9 @@ public class HeapNode{
      * decreases the siblings list's size by 1
      */
     public void plantUp() {
+        if (siblings == null) {
+            throw new RuntimeException("Cannot plant up for a node with no siblings pointer");
+        }
         HeapNode next = this.next;
         LinkedList children = rejectChildren();
         siblings.deleteNode(this);
