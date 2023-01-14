@@ -178,7 +178,7 @@ public class LinkedList implements Iterable<HeapNode> {
     // DELETE METHODS //
     ////////////////////
 
-    public HeapNode deleteNode(HeapNode node) {
+    public HeapNode cutNode(HeapNode node) {
         if (root == node) {
             root = node.next;
         }
@@ -194,18 +194,18 @@ public class LinkedList implements Iterable<HeapNode> {
         return node;
     }
 
-    public HeapNode deleteKey(int key) {
+    public HeapNode cutKey(int key) {
         for (HeapNode node : this) {
             if (node.key != key) {
                 continue;
             }
-            return deleteNode(node);
+            return cutNode(node);
         }
         return null;
     }
 
-    public void deleteMin() {
-        deleteNode(minNode);
+    public void cutKey() {
+        cutNode(minNode);
     }
 
 
