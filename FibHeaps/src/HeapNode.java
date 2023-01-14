@@ -11,6 +11,7 @@ public class HeapNode{
     public HeapNode prev;
     public LinkedList children;
     public LinkedList siblings;
+    public FibonacciHeap heap;
     private static final LinkedListFactory listFactory = new LinkedListFactory();
 
     /**
@@ -264,7 +265,15 @@ public class HeapNode{
 }
 
 class NodeFactory {
+    FibonacciHeap heap;
+
+    public NodeFactory(FibonacciHeap heap) {
+        this.heap = heap;
+    }
+
     public HeapNode createNode(int key) {
-        return new HeapNode(key);
+        HeapNode node = new HeapNode(key);
+        node.heap = heap;
+        return node;
     }
 }
