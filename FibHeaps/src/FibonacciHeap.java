@@ -7,7 +7,10 @@ import java.util.Iterator;
 public class FibonacciHeap
 {
     private final NodeFactory nodeFactory = new NodeFactory(this);
-    LinkedList rootList = new LinkedList();
+    LinkedList rootList = new LinkedList(); // The representation for the top of the heap
+
+    private static int links = 0; // Counter for total links
+    private static int cuts = 0; // Counter for total cuts
 
 
     /**
@@ -36,18 +39,23 @@ public class FibonacciHeap
     /**
      * public void deleteMin()
      * Deletes the node containing the minimum key.
-     *
+     * Returns null
      */
-
     public void deleteMin() {
         if (isEmpty()) {
             return;
         }
-        rootList.deleteMinLIOR();
+        rootList.deleteMinLIOR(); // TO CHANGE /////////////////////////////////
 //        delete(findMin());
         reOrganize();
     }
 
+
+    /**
+     * private void reOrganize()
+     * Runs the linking process in the heap after deleteMin()
+     * Returns null
+     */
     private void reOrganize() {
         int[] rankCounter = countersRep();
         for (int i = 0; i < rankCounter.length - 2; i++) {
@@ -79,14 +87,31 @@ public class FibonacciHeap
 
                 tmpparent.insertChild(rootList.cutNode(tmpchild));
                 updateCounter(i, rankCounter);
-
             }
         }
     }
 
+    /**
+     * public void increaseCuts()
+     * Updates countersRep array (given as argument) after link of two trees in rank i
+     * Increases the links counter by one
+     * Returns null
+     */
     private void updateCounter(int i, int[] rankCounter) {
         rankCounter[i] -= 2;
         rankCounter[i+1]++;
+        // Update counter of total links
+        links++;
+    }
+
+    /**
+     * public void increaseCuts()
+     * Increases the cuts counter by one
+     * Returns null
+     */
+    public void increaseCuts() {
+        // Update counter of total cuts
+        cuts++;
     }
 
     /**
@@ -94,18 +119,16 @@ public class FibonacciHeap
      * Returns the node of the heap whose key is minimal, or null if the heap is empty.
      *
      */
-    public HeapNode findMin()
-    {
+    public HeapNode findMin() {
         return rootList.getMin();
     }
 
     /**
      * public void meld (FibonacciHeap heap2)
      * Melds heap2 with the current heap.
-     *
+     * Returns null
      */
-    public void meld (FibonacciHeap heap2)
-    {
+    public void meld (FibonacciHeap heap2) {
         rootList.annex(heap2.rootList);
     }
 
@@ -114,8 +137,7 @@ public class FibonacciHeap
      * Returns the number of elements in the heap.
      *
      */
-    public int size()
-    {
+    public int size() {
         return rootList.size;
     }
 
@@ -125,8 +147,7 @@ public class FibonacciHeap
      * (Note: The size of of the array depends on the maximum order of a tree.)
      *
      */
-    public int[] countersRep()
-    {
+    public int[] countersRep() {
         int[] arr = new int[100];
         for (HeapNode n : this.rootList) {
             arr[n.rank()]++;
@@ -134,6 +155,11 @@ public class FibonacciHeap
         return arr;
     }
 
+    /**
+     ****************************************** DO WE NEED IT?
+     * Returns the maximum rank in the heap.
+     *
+     */
     private int getMaxRank() {
         int max = 0;
         for (HeapNode n : this.rootList) {
@@ -141,7 +167,6 @@ public class FibonacciHeap
                 max = n.rank();
             }
         }
-
         return max;
     }
 
@@ -151,16 +176,15 @@ public class FibonacciHeap
      * It is assumed that x indeed belongs to the heap.
      *
      */
-    public void delete(HeapNode node) {
-        if (null == node) {
+    public void delete(HeapNode x) {
+        if (null == x) {
             return;
         }
-        node.delete();
-    }
 
-
-    private void cut(HeapNode x) {
-        rootList.insertFirst(x.eject());
+        int k = x.getKey();
+        int maxDelta = Integer.MAX_VALUE;
+        rootList.listDecreaseKey(k, maxDelta, this);
+        deleteMin();
     }
 
 
@@ -169,13 +193,9 @@ public class FibonacciHeap
      * Decreases the key of the node x by a non-negative value delta. The structure of the heap should be updated
      * to reflect this change (for example, the cascading cuts procedure should be applied if needed).
      */
-    public void decreaseKey(HeapNode x, int delta)
-    {
-        x.key -= delta;
-        if (x.hasParent() && x.getParent().getKey() > x.key) {
-            cut(x);
-        }
-        // add logic to check if we need to Cascade Cut
+    public void decreaseKey(HeapNode x, int delta) {
+        int k = x.getKey();
+        rootList.listDecreaseKey(k, delta, this);
     }
 
     /**
@@ -208,7 +228,7 @@ public class FibonacciHeap
      */
     public static int totalLinks()
     {
-        return -345; // should be replaced by student code
+        return links;
     }
 
     /**
@@ -219,7 +239,7 @@ public class FibonacciHeap
      */
     public static int totalCuts()
     {
-        return -456; // should be replaced by student code
+        return cuts;
     }
 
     /**
