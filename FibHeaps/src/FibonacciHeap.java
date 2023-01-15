@@ -277,6 +277,17 @@ public class FibonacciHeap
         return cuts;
     }
 
+
+    /**
+     * Find a node with key 'k' in the heap.
+     * @param k the key to find inside the heap
+     * @return the node with the corresponding key
+     */
+    private HeapNode find(int k) {
+        return rootList.findRecursive(k);
+    }
+
+
     /**
      * public static int[] kMin(FibonacciHeap H, int k)
      * This static function returns the k smallest elements in a Fibonacci heap that contains a single tree.
@@ -285,8 +296,39 @@ public class FibonacciHeap
      */
     public static int[] kMin(FibonacciHeap H, int k)
     {
-        int[] arr = new int[100];
-        return arr; // should be replaced by student code
+        // Initialize a result array with size k.
+        int[] result = new int[k];
+        if (k == 0) {
+            return result;
+        }
+
+        // Insert the minimal value from H to the result array.
+        HeapNode minNode = H.findMin();
+        result[0] = minNode.getKey();
+
+        // Initialize variables for the procedure.
+        int nextMinKey;
+        FibonacciHeap query = new FibonacciHeap();
+
+        // Repeat k - 1 times:
+        for (int i = 1; i < k; i++) {
+            // Insert the recently added node's children from H to the query.
+            for (HeapNode child : minNode.children) {
+                query.insert(child.getKey());
+            }
+
+            // Find the next minimal key from query
+            nextMinKey = query.findMin().getKey();
+
+            // Add the minimal key from query to the results array
+            result[i] = nextMinKey;
+
+            // Find the recently added node in H.
+            minNode = H.find(nextMinKey);
+        }
+
+        // Return the resulting array after k inserts.
+        return result;
     }
 }
 
