@@ -35,7 +35,10 @@ public class HeapNode{
                 if (p.getKey() >= this.getKey()) {
                     cut();
                     heap.increaseCuts();
-                    this.setMark(false);
+                    boolean markFlag = this.setMark(false);
+                    if (markFlag) {
+                        heap.decreaseMarked();
+                    }
                     heap.rootList.insertFirst(this);
                 }
             } else {
@@ -55,11 +58,18 @@ public class HeapNode{
             if (p != null) {
                 if (childrenSizeBefore > children.size) {
                     if (!getMark()) {
-                        mark = true;
+                        boolean markFlag = this.setMark(true);
+                        if (markFlag) {
+                            heap.increaseMarked();
+                        }
                     } else {
                         cut();
                         heap.increaseCuts();
-                        this.setMark(false);
+                        boolean markFlag = this.setMark(false);
+                        if (markFlag) {
+                            heap.decreaseMarked();
+                        }
+
                         heap.rootList.insertFirst(this);
                     }
                 }
@@ -220,9 +230,10 @@ public class HeapNode{
      * @param mark is the boolean value to set
      */
     // NEED TO COMPLETE WITH POINTER TO HEAP
-    public void setMark(boolean mark) {
+    public boolean setMark(boolean mark) {
+        boolean oldMark = this.getMark();
         this.mark = mark;
-        // heap.increaseMarks
+        return oldMark != mark;
     }
 
     ///////////////////////

@@ -11,6 +11,7 @@ public class FibonacciHeap
 
     private static int links = 0; // Counter for total links
     private static int cuts = 0; // Counter for total cuts
+    private int marked = 0; // Counter for number of current marked nodes in heap
 
 
     /**
@@ -50,13 +51,24 @@ public class FibonacciHeap
     }
 
 
+    private static double log(double base, double arg) {
+        return Math.log10(arg) / Math.log10(base);
+    }
+
+
+    private int maxRankUpperBound() {
+        final double PHI = (1 + Math.sqrt(5)) / 2;
+        return (int) Math.floor(log(PHI, size()));
+    }
+
+
     /**
      * private void reOrganize()
      * Runs the linking process in the heap after deleteMin()
      * Returns null
      */
     private void reOrganize() {
-        int[] rankCounter = countersRep();
+        int[] rankCounter = new int[maxRankUpperBound()];
         for (int i = 0; i < rankCounter.length - 2; i++) {
             while (rankCounter[i] > 1) {
                 // Find the first 2 nodes with rank i
@@ -91,7 +103,7 @@ public class FibonacciHeap
     }
 
     /**
-     * public void increaseCuts()
+     * public void updateCounter()
      * Updates countersRep array (given as argument) after link of two trees in rank i
      * Increases the links counter by one
      * Returns null
@@ -114,6 +126,26 @@ public class FibonacciHeap
     }
 
     /**
+     * public void increaseMarked()
+     * Increases the marks counter by one
+     * Returns null
+     */
+    public void increaseMarked() {
+        // Update counter of total marks
+        marked++;
+    }
+
+    /**
+     * public void decreaseMarked()
+     * Decreases the marks counter by one
+     * Returns null
+     */
+    public void decreaseMarked() {
+        // Update counter of total marks
+        marked--;
+    }
+
+    /**
      * public HeapNode findMin()
      * Returns the node of the heap whose key is minimal, or null if the heap is empty.
      *
@@ -129,6 +161,7 @@ public class FibonacciHeap
      */
     public void meld (FibonacciHeap heap2) {
         rootList.annex(heap2.rootList);
+        marked += heap2.marked;
     }
 
     /**
@@ -213,9 +246,8 @@ public class FibonacciHeap
      * In words: The potential equals to the number of trees in the heap
      * plus twice the number of marked nodes in the heap.
      */
-    public int potential()
-    {
-        return -234; // should be replaced by student code
+    public int potential() {
+        return rootList.length + 2*marked;
     }
 
     /**
