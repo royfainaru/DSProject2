@@ -68,7 +68,7 @@ public class FibonacciHeap
      * Returns null
      */
     private void reOrganize() {
-        int[] rankCounter = new int[maxRankUpperBound()];
+        int[] rankCounter = new int[maxRankUpperBound() + 1];
         for (int i = 0; i < rankCounter.length - 2; i++) {
             while (rankCounter[i] > 1) {
                 // Find the first 2 nodes with rank i
@@ -180,7 +180,7 @@ public class FibonacciHeap
      *
      */
     public int[] countersRep() {
-        int[] arr = new int[getMaxRank()];
+        int[] arr = new int[getMaxRank() + 1];
         for (HeapNode n : this.rootList) {
             arr[n.rank()]++;
         }
@@ -236,7 +236,7 @@ public class FibonacciHeap
      */
     public int nonMarked()
     {
-        return -232; // should be replaced by student code
+        return size() - marked;
     }
 
     /**
