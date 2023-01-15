@@ -15,9 +15,9 @@ public class HeapNode{
     private static final LinkedListFactory listFactory = new LinkedListFactory();
 
 
-    ///////////////////
+    ////////////////////
     // 'LIOR' METHODS //
-    ///////////////////
+    ////////////////////
 
     /*************************************************************************************************
      * Helper method for heap.DecreaseKey()

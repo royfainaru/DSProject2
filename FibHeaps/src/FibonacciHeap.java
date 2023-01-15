@@ -69,7 +69,11 @@ public class FibonacciHeap
      */
     private void reOrganize() {
         int[] rankCounter = new int[maxRankUpperBound() + 1];
-        for (int i = 0; i < rankCounter.length - 2; i++) {
+
+        int[] currentCountersRep = countersRep();
+        System.arraycopy(currentCountersRep, 0, rankCounter, 0, currentCountersRep.length);
+
+        for (int i = 0; i < rankCounter.length - 1; i++) {
             while (rankCounter[i] > 1) {
                 // Find the first 2 nodes with rank i
                 HeapNode node1 = null;
@@ -86,17 +90,17 @@ public class FibonacciHeap
                     }
                 }
 
-                HeapNode tmpparent;
-                HeapNode tmpchild;
+                HeapNode tmpParent;
+                HeapNode tmpChild;
                 if (node1.key < node2.key) {
-                    tmpparent = node1;
-                    tmpchild = node2;
+                    tmpParent = node1;
+                    tmpChild = node2;
                 } else {
-                    tmpparent = node2;
-                    tmpchild = node1;
+                    tmpParent = node2;
+                    tmpChild = node1;
                 }
 
-                tmpparent.insertChild(rootList.cutNode(tmpchild));
+                tmpParent.insertChild(rootList.cutNode(tmpChild));
                 updateCounter(i, rankCounter);
             }
         }
