@@ -63,25 +63,17 @@ public class MyTest {
 
 
         System.out.println("********** HEAP 1 **********");
+        System.out.println("top of the heap: " + heap.rootList.toString());
+        System.out.println("counter rep" + Arrays.toString(heap.countersRep()));
+
         System.out.println("MIN: " + heap.findMin());
         heap.deleteMin();
-
         System.out.println("top of the heap: " + heap.rootList.toString());
-        System.out.println("cuts: " + FibonacciHeap.totalCuts());
-        System.out.println("links: " + FibonacciHeap.totalLinks());
+        System.out.println("counter rep" + Arrays.toString(heap.countersRep()));
 
 
-        System.out.println("********** DELETE BY NODE **********");
-        System.out.println("second layer: " + heap.rootList.root.children.toString());
-        System.out.println("second layer2: " + heap.rootList.root.next.children.toString());
-        HeapNode x3 = heap.rootList.findRecursive(8);
-        heap.delete(x3);
 
-        System.out.println("top of the heap: " + heap.rootList.toString());
-        System.out.println("cuts: " + FibonacciHeap.totalCuts());
-        System.out.println("links: " + FibonacciHeap.totalLinks());
-        System.out.println(Arrays.toString(heap.countersRep()));
-        System.out.println("top of the heap: " + heap.rootList.toString());
+
 
 //
 //        ///////////////////
