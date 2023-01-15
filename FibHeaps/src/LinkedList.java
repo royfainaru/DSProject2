@@ -8,6 +8,45 @@ public class LinkedList implements Iterable<HeapNode> {
     HeapNode minNode;
     HeapNode parent;
 
+
+    ///////////////////
+    // 'LIOR' METHODS //
+    ///////////////////
+
+    /*************************************************************************************************
+     * Helper method for heap.deleteMin()
+     * Deletes the given node from the list, and plants the children in his place by order
+     * @return HeapNode
+     */
+    public HeapNode deleteMin() {
+        HeapNode nodeToDelete = minNode;
+        LinkedList children = nodeToDelete.children;
+        cutNode(nodeToDelete);
+        plantBefore(children, nodeToDelete.next);
+        return nodeToDelete;
+    }
+
+
+    /*************************************************************************************************
+     * Helper method for heap.DecreaseKey()
+     * @return HeapNode if found, else null
+     */
+    public HeapNode listDecreaseKey(int key, int d, FibonacciHeap heap) {
+        for (HeapNode node : this) {
+            HeapNode retrievedNode = node.nodeDecreaseKey(key, d, heap);
+            if (retrievedNode != null) {
+                return retrievedNode;
+            }
+        }
+        return null;
+    }
+
+    /*************************************************************************************************
+     */
+
+
+
+
     /**
      * String representation of LinkedList
      * @return [key_root, key_2, ..., key_tail]
@@ -55,7 +94,21 @@ public class LinkedList implements Iterable<HeapNode> {
     }
 
 
+    /**
+     * recursively search for the node with the provided key within the children list of each node,
+     * only if the requested key is not directly inside the list.
+     * @param key the requested key to search
+     * @return the node that corresponds to the key
+     */
     public HeapNode findRecursive(int key) {
+        // Added this to prioritize upper-most nodes. CAN BE REMOVED
+        for (HeapNode node: this) {
+            if (node.getKey() == key) {
+                return node;
+            }
+        }
+
+        // Original procedure
         for (HeapNode node : this) {
             HeapNode retrievedNode = node.findRecursive(key);
             if (retrievedNode != null) {
@@ -87,9 +140,11 @@ public class LinkedList implements Iterable<HeapNode> {
      * @param delta the increment in this list size
      */
     public void increaseSize(int delta) {
+        // Calculate new size and call size setter
         int newSize = size + delta;
         setSize(newSize);
 
+        // Recursively update all parent lists' sizes.
         if (hasParent() && parent.siblings != null) {
             parent.siblings.increaseSize(delta);
         }
@@ -101,12 +156,15 @@ public class LinkedList implements Iterable<HeapNode> {
      * @param delta a positive decrement of this list size
      */
     public void decreaseSize(int delta) {
+        // In case of a negative decrease, call increaseSize.
         if (delta < 0) {
             increaseSize(delta);
         }
 
+        // Call increaseSize with a negative argument
         increaseSize(-delta);
 
+        // Recursively update all parent lists' sizes.
         if (hasParent() && parent.siblings != null) {
             parent.siblings.decreaseSize(delta);
         }
@@ -126,16 +184,26 @@ public class LinkedList implements Iterable<HeapNode> {
      * @param node the node to be inserted at the header of this list
      */
     public void insertFirst(HeapNode node) {
+
         if (!isEmpty()) {
+            // When possible, rely on node's insertion methods
             root.insertPrev(node);
         } else {
+            // Iff the list is currently empty, the node will be the new tail.
             tail = node;
         }
+
+        // Set the siblings pointer of the added node
         node.siblings = this;
+
+        // Set the new root of this list.
         root = node;
+
+        // Update length and size attributes of this list.
         length++;
         increaseSize(node.getSize());
 
+        // Update minNode pointer of this list.
         if (minNode == null || node.key < minNode.key) {
             minNode = node;
         }
@@ -148,15 +216,22 @@ public class LinkedList implements Iterable<HeapNode> {
      * @param list2 the list to be annexed to this list
      */
     public void annex(LinkedList list2) {
+        // Update annexed list's parent pointer
         list2.parent = this.parent;
+
+        // If list2 is empty, nothing more is to be done.
         if (list2.isEmpty()) {
             return;
         }
+
         if (this.isEmpty()) {
+            // Iff this list is empty, then the root of the annexed list will be the root of this list.
             this.root = list2.root;
+            // If this list is empty, then minNode is initialized, and minNode will be updated.
             this.minNode = list2.minNode;
         }
         else {
+            // Connect the root of list2 to the
             this.tail.setNext(list2.root);
             this.minNode = (this.minNode.key < list2.minNode.key) ? this.minNode : list2.minNode;
         }
@@ -222,7 +297,7 @@ public class LinkedList implements Iterable<HeapNode> {
     // OTHER METHODS //
     ///////////////////
 
-    private void updateMin() {
+    public void updateMin() {
         HeapNode result = root;
         for (HeapNode node : this) {
             if (node.key < result.key) {

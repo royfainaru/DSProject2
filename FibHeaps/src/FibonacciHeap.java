@@ -45,8 +45,7 @@ public class FibonacciHeap
         if (isEmpty()) {
             return;
         }
-        rootList.deleteMinLIOR(); // TO CHANGE /////////////////////////////////
-//        delete(findMin());
+        rootList.deleteMin();
         reOrganize();
     }
 
@@ -148,7 +147,7 @@ public class FibonacciHeap
      *
      */
     public int[] countersRep() {
-        int[] arr = new int[100];
+        int[] arr = new int[getMaxRank()];
         for (HeapNode n : this.rootList) {
             arr[n.rank()]++;
         }
