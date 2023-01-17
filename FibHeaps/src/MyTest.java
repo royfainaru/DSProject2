@@ -71,6 +71,8 @@ public class MyTest {
         System.out.println("top of the heap: " + heap.rootList.toString());
         System.out.println("counter rep" + Arrays.toString(heap.countersRep()));
 
+        System.out.println("K MIN" + Arrays.toString(FibonacciHeap.kMin(heap, 2)));
+
 
 
 
