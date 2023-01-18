@@ -9,42 +9,45 @@ public class LinkedList implements Iterable<HeapNode> {
     HeapNode parent;
 
 
-    ///////////////////
-    // 'LIOR' METHODS //
-    ///////////////////
-
-    /*************************************************************************************************
+    /**
      * Helper method for heap.deleteMin()
      * Deletes the given node from the list, and plants the children in his place by order
      * @return HeapNode
+     * time complexity: O(1)
      */
     public HeapNode deleteMin() {
+        // Saves pointer to the node that is about to be deleted to use the location pointers later
         HeapNode nodeToDelete = minNode;
+        // Saves children of the node that is about to be deleted to insert them later
         LinkedList children = nodeToDelete.children;
+        // Deletes the node from the list (Linked list cut is equivalent to Node delete with children)
         cutNode(nodeToDelete);
+        // Plants the deleted node children nodes according to his old location in the list
         plantBefore(children, nodeToDelete.next);
+        // Returns the deleted node
         return nodeToDelete;
     }
 
 
-    /*************************************************************************************************
-     * Helper method for heap.DecreaseKey()
+    /**
+     * Helper method for heap.DecreaseKey() - works with node.nodeDecreaseKey()
      * @return HeapNode if found, else null
+     * time complexity: O(n)
      */
     public HeapNode listDecreaseKey(int key, int d, FibonacciHeap heap) {
+        // Loop runs through every node in the list
         for (HeapNode node : this) {
+            // Start of recursive call for each tree in the forest, to find the node and decrease the key
             HeapNode retrievedNode = node.nodeDecreaseKey(key, d, heap);
+            // If the node is not found in the subtree, the return value is null
             if (retrievedNode != null) {
+                // Returns the node after decrease of key by delta
                 return retrievedNode;
             }
         }
+        // If node not found in any tree in the forest
         return null;
     }
-
-    /*************************************************************************************************
-     */
-
-
 
 
     /**

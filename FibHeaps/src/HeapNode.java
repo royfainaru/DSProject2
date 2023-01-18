@@ -15,69 +15,94 @@ public class HeapNode{
     private static final LinkedListFactory listFactory = new LinkedListFactory();
 
 
-    ////////////////////
-    // 'LIOR' METHODS //
-    ////////////////////
-
-    /*************************************************************************************************
-     * Helper method for heap.DecreaseKey()
+    /**
+     * Helper method for heap.DecreaseKey() - works with list.listDecreaseKey()
      * @return HeapNode if found, else null
+     * time complexity: O(n)
      */
     public HeapNode nodeDecreaseKey(int key, int d, FibonacciHeap heap) {
+        // Checks for searched key to decrease
         if (key == this.getKey()) {
+            // Case of heap.delete(node) - implemented by decrease to minimum and deleteMin
             if (d == Integer.MAX_VALUE) {
                 this.key = Integer.MIN_VALUE;
             } else {
+                // Decreases key by given delta
                 this.key -= d;
             }
-            HeapNode p = this.getParent();
-            if (p != null) {
-                if (p.getKey() >= this.getKey()) {
+            // Checks if the parent node is a root node of the heap
+            HeapNode parent = this.getParent();
+            // only cuts and marks parent if parent node is not a root node in the heap forest
+            if (parent != null) {
+                // If the heap rule is violated, the node and his children will be cut from his parent
+                if (parent.getKey() >= this.getKey()) {
+                    // Cutting the node with his children from parent node and sibling linked list
                     cut();
+                    // Update the Cuts heap counter
                     heap.increaseCuts();
+                    // The setMark method return value indicates if changes in the node mark were made by the operation
                     boolean markFlag = this.setMark(false);
+                    // Only if changes were made, the heap counter will be updated accordingly
                     if (markFlag) {
                         heap.decreaseMarked();
                     }
+                    // Insert the cut node with his children back to the heap forest as independent trees
                     heap.rootList.insertFirst(this);
                 }
             } else {
+                // If the node is a root node
                 heap.rootList.updateMin();
             }
+            // Return the searched node to the recursion
             return this;
         }
 
+        // If the node has no children the recursive search ends for this tree, returns null as indicator to the recursion
         if (children.isEmpty()) {
             return null;
         }
+
+        // Saves the size of children linked list to compare as indicator for changes in the subtrees
         int childrenSizeBefore = children.size;
+        // Recursive call on the children linked list in order to find the node with the key to decrease
         HeapNode returnedNode = children.listDecreaseKey(key, d, heap);
 
+        // The returned value from the recursion is null if the searched node is not found in the subtree
         if (returnedNode != null) {
+            // Checks if the parent node is a root node of the heap
             HeapNode p = this.getParent();
+            // only cuts and marks parent if parent node is not a root node in the heap forest
             if (p != null) {
+                // If a child node was cut for this node, the length of children linked list was decreased
                 if (childrenSizeBefore > children.size) {
+                    // If current node was not marked before the operation
                     if (!getMark()) {
+                        // The setMark method return value indicates if changes in the node mark were made by the operation
                         boolean markFlag = this.setMark(true);
+                        // Only if changes were made, the heap counter will be updated accordingly
                         if (markFlag) {
                             heap.increaseMarked();
                         }
-                    } else {
+                    } else { // The current node was already marked (start of cascading cuts)
+                        // Cutting the node with his children from parent node and sibling linked list
                         cut();
+                        // Update the Cuts heap counter
                         heap.increaseCuts();
+                        // The setMark method return value indicates if changes in the node mark were made by the operation
                         boolean markFlag = this.setMark(false);
+                        // Only if changes were made, the heap counter will be updated accordingly
                         if (markFlag) {
                             heap.decreaseMarked();
                         }
-
+                        // Insert the cut node with his children back to the heap forest as independent trees
                         heap.rootList.insertFirst(this);
                     }
                 }
             }
         }
+        // Return the searched node to the recursion
         return returnedNode;
     }
-
 
 
     /**
