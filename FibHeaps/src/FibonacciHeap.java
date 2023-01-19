@@ -755,15 +755,19 @@ public class FibonacciHeap {
          * @return the removed node
          */
         public void eject() {
+            //NEED TO SAVE POINTERS AHEAD
+            HeapNode originalNext = next;
+            HeapNode originalPrev = prev;
+
             // Connect prev node to the next node
             if (hasPrev()) {
-                prev.setNext(next);
+                originalPrev.setNext(originalNext);
                 setPrev(null);
             }
 
             // Connect next node to the prev node
             if (hasNext()) {
-                next.setPrev(prev);
+                next.setPrev(originalPrev);
                 setNext(null);
             }
 
@@ -837,6 +841,8 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @return HeapNode
      * time complexity: O(1)
      */
+
+    // TEST 2 found bug : ripNode(nodeToDelete) initiates nodeToDelete.next pointer
     public void deleteMin() {
         // Saves pointer to the node that is about to be deleted to use the location pointers later
         FibonacciHeap.HeapNode nodeToDelete = minNode;
@@ -985,18 +991,8 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @param delta a positive decrement of this list size
      */
     public void decreaseSize(int delta) {
-        // In case of a negative decrease, call increaseSize.
-        if (delta < 0) {
-            increaseSize(delta);
-        }
-
         // Call increaseSize with a negative argument
         increaseSize(-delta);
-
-        // Recursively update all parent lists' sizes.
-        if (hasParent() && parent.siblings != null) {
-            parent.siblings.decreaseSize(delta);
-        }
     }
 
 
