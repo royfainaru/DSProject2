@@ -13,6 +13,11 @@ public class FibonacciHeap {
     private int marked = 0; // Counter for number of current marked nodes in heap
 
 
+    public HeapNode getFirst() {
+        return rootList.root;
+    }
+
+
     /**
      * public boolean isEmpty()
      * Returns true if and only if the heap is empty.
@@ -43,7 +48,7 @@ public class FibonacciHeap {
      * public void deleteMin()
      * Deletes the node containing the minimum key.
      * Returns null
-     * time complexity: O(logn)
+     * time complexity: O(n)
      */
     public void deleteMin() {
         // If the heap is empty, no minNode to delete
@@ -55,7 +60,7 @@ public class FibonacciHeap {
         rootList.deleteMin();
 
         // Call the linking process of the heap
-        reOrganize();
+        consolidate();
 
         // Update min node pointer
         rootList.updateMin();
@@ -87,80 +92,134 @@ public class FibonacciHeap {
 
 
     /**
-     * private void reOrganize()
-     * Runs the linking process in the heap after deleteMin()
-     * Returns null
-     * time complexity: O(n)
+     * recursive method that performs 'successive' linking
+     * until no two nodes of same rank are in query.
+     * worst case: O(log(n))
      */
-
-    // test2 bug found: reOrganize calling rootList.cutNode is not good since we agreed to updateMin only after reorganization.
-    // replaced to ripNode
-    private void reOrganize() {
-        if (size() < 2) {
-            return;
-        }
-
-
-        // Initialize an array to keep track of the number of nodes at each rank
-        int[] rankCounter = new int[maxRankUpperBound() + 1];
-        // Copy the current counters representation to rankCounter
-        int[] currentCountersRep = countersRep();
-        System.arraycopy(currentCountersRep, 0, rankCounter, 0, currentCountersRep.length);
-
-        // Iterate through all ranks from 0 to maxRankUpperBound
-        for (int i = 0; i < rankCounter.length - 1; i++) {
-            // While there are more than 1 node with rank i, continue the linking
-            while (rankCounter[i] > 1) {
-                // Find the first 2 nodes with rank i
-                FibonacciHeap.HeapNode node1 = null;
-                FibonacciHeap.HeapNode node2 = null;
-
-                for (FibonacciHeap.HeapNode n : this.rootList) {
-                    if (n.rank() == i) {
-                        // Makes sure to only take 2
-                        if (null != node1) {
-                            node2 = n;
-                            break;
-                        } else {
-                            node1 = n;
-                        }
-                    }
-                }
-
-                // Compare the keys of the two nodes, and set tmpParent and tmpChild accordingly to the smaller key
-                FibonacciHeap.HeapNode tmpParent;
-                FibonacciHeap.HeapNode tmpChild;
-                if (node1.key < node2.key) {
-                    tmpParent = node1;
-                    tmpChild = node2;
-                } else {
-                    tmpParent = node2;
-                    tmpChild = node1;
-                }
-
-                // Cut the child from the root list and insert the child into the parent children list
-                tmpParent.insertChild(rootList.ripNode(tmpChild));
-
-                // Update the rank counter
-                updateCounter(i, rankCounter);
+    private HeapNode link(HeapNode[] query, HeapNode node) {
+        HeapNode newRoot;
+        // In case there is already a node with the same rank in query.
+        if (query[node.rank()] != null) {
+            // increase links counter
+            links++;
+            // This is the other node with the same rank.
+            HeapNode other = query[node.rank()];
+            // Remove all nodes from current query's rank position (to move into the next rank's place).
+            query[node.rank()] = null;
+            // Decide which node to be the parent of the other, perform the insertion.
+            if (node.getKey() < other.getKey()) {
+                // MIGHT BE PROBLEMATIC
+                rootList.ripNode(other);
+                // This is OK.
+                node.insertChild(other);
+                newRoot = node;
+            } else {
+                // PROBLEMO?
+                rootList.ripNode(node);
+                // OK.
+                other.insertChild(node);
+                newRoot = other;
             }
+            return link(query, newRoot);
+        }
+        // In case there is no node with rank in query (simple case).
+        else {
+            query[node.rank()] = node;
+            return node;
         }
     }
 
     /**
-     * public void updateCounter()
-     * Updates countersRep array (given as argument) after link of two trees in rank i
-     * Increases the links counter by one
+     * private void consolidate()
+     * Runs the linking process in the heap after deleteMin()
      * Returns null
-     * time complexity: O(1)
+     * time complexity: O(n)
      */
-    private void updateCounter(int i, int[] rankCounter) {
-        // A link between two trees of rank i, creates a new tree of rank i+1 in the forest, updates the rank counter accordingly
-        rankCounter[i] -= 2;
-        rankCounter[i + 1]++;
-        // Update counter of total links
-        links++;
+    private void consolidate() {
+        if (size() < 2) {
+            return;
+        }
+        HeapNode[] query = new HeapNode[maxRankUpperBound() + 1];
+        for (HeapNode treeRoot : rootList) {
+            link(query, treeRoot);
+        }
     }
+
+
+
+
+//    /**
+//     * private void reOrganize()
+//     * Runs the linking process in the heap after deleteMin()
+//     * Returns null
+//     * time complexity: O(n^2)
+//     */
+//    private void reOrganize() {
+//        if (size() < 2) {
+//            return;
+//        }
+//
+//
+//        // Initialize an array to keep track of the number of nodes at each rank
+//        int[] rankCounter = new int[maxRankUpperBound() + 1];
+//        // Copy the current counters representation to rankCounter
+//        int[] currentCountersRep = countersRep();
+//        System.arraycopy(currentCountersRep, 0, rankCounter, 0, currentCountersRep.length);
+//
+//        // Iterate through all ranks from 0 to maxRankUpperBound
+//        for (int i = 0; i < rankCounter.length - 1; i++) {
+//            // While there are more than 1 node with rank i, continue the linking
+//            while (rankCounter[i] > 1) {
+//                // Find the first 2 nodes with rank i
+//                FibonacciHeap.HeapNode node1 = null;
+//                FibonacciHeap.HeapNode node2 = null;
+//
+//                for (FibonacciHeap.HeapNode n : this.rootList) {
+//                    if (n.rank() == i) {
+//                        // Makes sure to only take 2
+//                        if (null != node1) {
+//                            node2 = n;
+//                            break;
+//                        } else {
+//                            node1 = n;
+//                        }
+//                    }
+//                }
+//
+//                // Compare the keys of the two nodes, and set tmpParent and tmpChild accordingly to the smaller key
+//                FibonacciHeap.HeapNode tmpParent;
+//                FibonacciHeap.HeapNode tmpChild;
+//                if (node1.key < node2.key) {
+//                    tmpParent = node1;
+//                    tmpChild = node2;
+//                } else {
+//                    tmpParent = node2;
+//                    tmpChild = node1;
+//                }
+//
+//                // Cut the child from the root list and insert the child into the parent children list
+//                tmpParent.insertChild(rootList.ripNode(tmpChild));
+//
+//                // Update the rank counter
+//                updateCounter(i, rankCounter);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * public void updateCounter()
+//     * Updates countersRep array (given as argument) after link of two trees in rank i
+//     * Increases the links counter by one
+//     * Returns null
+//     * time complexity: O(1)
+//     */
+//    private void updateCounter(int i, int[] rankCounter) {
+//        // A link between two trees of rank i, creates a new tree of rank i+1 in the forest, updates the rank counter accordingly
+//        rankCounter[i] -= 2;
+//        rankCounter[i + 1]++;
+//        // Update counter of total links
+//        links++;
+//    }
 
     /**
      * public void increaseCuts()
@@ -232,7 +291,7 @@ public class FibonacciHeap {
      * public int[] countersRep()
      * Return an array of counters. The i-th entry contains the number of trees of order i in the heap.
      * (Note: The size of the array depends on the maximum order of a tree.)
-     * time complexity: O(logn)
+     * time complexity: O(n)
      */
     public int[] countersRep() {
         if (size() == 0) {
@@ -253,7 +312,7 @@ public class FibonacciHeap {
      * private int maxRankUpperBound()
      * Finds the maximum existing tree rank in the heap forest
      * Returns the maximum rank
-     * time complexity: O(logn)
+     * time complexity: O(n)
      */
     private int getMaxRank() {
         int max = 0;
@@ -369,7 +428,7 @@ public class FibonacciHeap {
      * This static function returns the smallest k elements in a Fibonacci heap that contains a single tree.
      * The function should run in O(k*deg(H)). (deg(H) is the degree of the only tree in H.)
      * ###CRITICAL### : you are NOT allowed to change H.
-     * time complexity: O(klogn) ??????????????????????????????????????????????????????????????????????????????
+     * time complexity: O(k * deg(H))
      */
     public static int[] kMin(FibonacciHeap H, int k) {
         // Initialize a result array with size k.
@@ -526,8 +585,8 @@ public class FibonacciHeap {
 
         /**
          * String representation of HeapNode
-         *
          * @return String with the key of the node
+         * Time Complexity: O(1)
          */
         public String toString() {
             return Integer.toString(key);
@@ -539,9 +598,9 @@ public class FibonacciHeap {
         ///////////////////
 
         /**
-         * Check if this node has a previous node
-         *
+         * Check if this node has a previous node.
          * @return true if this node has a previous node, false otherwise
+         * Time Complexity: O(1)
          */
         public boolean hasPrev() {
             return prev != null;
@@ -549,8 +608,8 @@ public class FibonacciHeap {
 
         /**
          * Check if this node has a next node
-         *
          * @return true if this node has a next node, false otherwise
+         * Time Complexity: O(1)
          */
         public boolean hasNext() {
             return next != null;
@@ -559,8 +618,8 @@ public class FibonacciHeap {
         /**
          * Check if this node has a parent.
          * iff not, then the node must be in rootList.
-         *
          * @return true iff this node has a parent
+         * Time Complexity: O(1)
          */
         public boolean hasParent() {
             return getParent() != null;
@@ -573,6 +632,7 @@ public class FibonacciHeap {
 
         /**
          * @return the key of this node
+         * Time Complexity: O(1)
          */
         public int getKey() {
             return key;
@@ -580,6 +640,7 @@ public class FibonacciHeap {
 
         /**
          * @return the parent of the siblings LinkedList
+         * Time Complexity: O(1)
          */
         public HeapNode getParent() {
             if (siblings == null) {
@@ -590,15 +651,16 @@ public class FibonacciHeap {
 
         /**
          * @return the number of children of this node
+         * Time Complexity: O(1)
          */
         public int rank() {
             return children.length;
         }
 
         /**
-         * Get the number of nodes in the subtree rooted at this node (including this node)
-         *
+         * Get the number of nodes in the subtree rooted at this node (including this node).
          * @return the number of nodes in the subtree rooted at this node
+         * Time Complexity: O(1)
          */
         public int getSize() {
             return 1 + children.size;
@@ -606,10 +668,10 @@ public class FibonacciHeap {
 
         /**
          * Check if this node is marked
-         *
          * @return true iff this node is marked
+         * Time Complexity: O(1)
          */
-        private boolean getMark() {
+        public boolean getMark() {
             return mark;
         }
 
@@ -643,8 +705,8 @@ public class FibonacciHeap {
 
         /**
          * Set the previous node of this node
-         *
          * @param node the previous node to set
+         * Time Complexity: O(1)
          */
         public void setPrev(HeapNode node) {
             prev = node;
@@ -657,8 +719,8 @@ public class FibonacciHeap {
 
         /**
          * Set the next node of this node
-         *
          * @param node the next node to set
+         * Time Complexity: O(1)
          */
         public void setNext(HeapNode node) {
             next = node;
@@ -671,8 +733,8 @@ public class FibonacciHeap {
 
         /**
          * sets the mark of the node according to the parameter given.
-         *
          * @param mark is the boolean value to set
+         * Time Complexity: O(1)
          */
         // NEED TO COMPLETE WITH POINTER TO HEAP
         public boolean setMark(boolean mark) {
@@ -687,8 +749,8 @@ public class FibonacciHeap {
 
         /**
          * Insert a node as the previous node of this node
-         *
          * @param node the node to insert as the previous node
+         * Time Complexity: O(1)
          */
         public void insertPrev(HeapNode node) {
             // Take care of prev.next and node.prev pointers.
@@ -700,25 +762,11 @@ public class FibonacciHeap {
             setPrev(node);
         }
 
-        /**
-         * Insert a node as the next node of this node
-         *
-         * @param node the node to insert as the next node
-         */
-        public void insertNext(HeapNode node) {
-            // Take care of next.prev and node.next pointers
-            if (hasNext()) {
-                next.setPrev(node);
-            }
-
-            // Take care of this.next and node.prev pointers
-            setNext(node);
-        }
 
         /**
          * Insert a node to the header of the children list of this node
-         *
          * @param node the new child of this node
+         * Time Complexity: O(1)
          */
         public void insertChild(HeapNode node) {
             children.insertFirst(node);
@@ -728,8 +776,8 @@ public class FibonacciHeap {
         /**
          * Plant a linked list previous to this node.
          * Updates length, size, and relevant node pointers.
-         *
          * @param list the linked list to be planted before this node
+         * Time Complexity: O(1)
          */
         public void plantPrev(LinkedList list) {
             // Trivial case.
@@ -754,8 +802,8 @@ public class FibonacciHeap {
         /**
          * Remove this node from the doubly linked list:
          * set pointers to next, prev and 'siblings' to 'null'
-         *
          * @return the removed node
+         * Time Complexity: O(1)
          */
         public void eject() {
             //NEED TO SAVE POINTERS AHEAD
@@ -778,33 +826,11 @@ public class FibonacciHeap {
             siblings = null;
         }
 
+
         /**
-         * disconnects the children list from this node,
-         * creates and assigns a new children list to this node,
-         * decreases the sibling list's size (if siblings != null),
-         * and returns the list of original children of this node.
-         *
-         * @return the original children linked list of this node
+         * cut this node from its siblings list.
+         * Time Complexity: O(1)
          */
-        public LinkedList rejectChildren() {
-            LinkedList oldChildren = this.children;
-
-            // Nullify children's parent pointer.
-            oldChildren.parent = null;
-
-            // Get a new children list from the factory.
-            children = listFactory.createList(this);
-
-            // Updates the size of the siblings list (and bubbles up an update call).
-            if (siblings != null) {
-                siblings.decreaseSize(oldChildren.size);
-            }
-
-            // Returns the rejected children.
-            return oldChildren;
-        }
-
-
         public void cut() {
             // Refer to LinkedList's cut function.
             siblings.cutNode(this);
@@ -813,6 +839,10 @@ public class FibonacciHeap {
 
     }
 
+    /**
+     * Node factory which takes the key as an argument and also
+     * sets a reference to the heap of the node.
+     */
     static class NodeFactory {
         FibonacciHeap heap;
 
@@ -835,7 +865,12 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     int size;
     FibonacciHeap.HeapNode minNode;
     FibonacciHeap.HeapNode parent;
+    LinkedList observer;
 
+
+    public LinkedList() {
+        observer = this;
+    }
 
     /**
      * Helper method for heap.deleteMin()
@@ -886,6 +921,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * String representation of LinkedList
      *
      * @return [key_root, key_2, ..., key_tail]
+     * Time Complexity: O(n)
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -905,6 +941,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
 
     /**
      * @return true iff root is null
+     * Time Complexity: O(1)
      */
     public boolean isEmpty() {
         return root == null;
@@ -912,6 +949,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
 
     /**
      * @return true iff parent is not null
+     * Time Complexity: O(1)
      */
     public boolean hasParent() {
         return parent != null;
@@ -924,6 +962,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
 
     /**
      * @return the minimal node from a designated pointer 'minNode'
+     * Time Complexity: O(1)
      */
     public FibonacciHeap.HeapNode getMin() {
         return minNode;
@@ -936,6 +975,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      *
      * @param key the requested key to search
      * @return the node that corresponds to the key
+     * Time Complexity: O(n)
      */
     public FibonacciHeap.HeapNode findRecursive(int key) {
         // Added this to prioritize upper-most nodes. CAN BE REMOVED
@@ -963,6 +1003,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * Set the size of this list
      *
      * @param size the new size of the list
+     *             Time Complexity: O(1)
      */
     private void setSize(int size) {
         if (this.size == size) {
@@ -977,10 +1018,17 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * recursively call the parent's siblings' increaseSize with delta
      *
      * @param delta the increment in this list size
+     *              Time Complexity: O(logn)
      */
     public void increaseSize(int delta) {
         // Trivial case.
         if (delta == 0) {
+            return;
+        }
+
+        // Subscribed case.
+        if (observer != this) {
+            observer.increaseSize(delta);
             return;
         }
 
@@ -989,7 +1037,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         setSize(newSize);
 
         // Recursively update all parent lists' sizes.
-        if (hasParent() && parent.siblings != null) {
+        if (hasParent() && parent.children == this && parent.siblings != null) {
             parent.siblings.increaseSize(delta);
         }
     }
@@ -999,6 +1047,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * recursively call the parent's siblings' increaseSize with delta
      *
      * @param delta a positive decrement of this list size
+     *              Time Complexity: O(logn)
      */
     public void decreaseSize(int delta) {
         // Call increaseSize with a negative argument
@@ -1018,6 +1067,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * updates minNode pointer of this list, if necessary.
      *
      * @param node the node to be inserted at the header of this list
+     *             Time Complexity: O(logn)
      */
     public void insertFirst(FibonacciHeap.HeapNode node) {
 
@@ -1051,6 +1101,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * updates length and size of this list
      *
      * @param list2 the list to be annexed to this list
+     *              Time Complexity: O(logn)
      */
     public void annex(LinkedList list2) {
         // Update annexed list's parent pointer
@@ -1073,12 +1124,14 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
         this.tail = list2.tail;
         this.length += list2.length;
+        list2.observer = this;
         this.increaseSize(list2.size);
     }
 
     /**
      * @param list2     the list to be planted to this list
      * @param nodeAfter the node to be after the planted list. null iff annex
+     *                  Time Complexity: O(logn)
      */
     // TEST 2 bug found - if we plant a list before the root, the root of list2 becomes the new root of the list.
     // however, that should have included an exclusion to the case where list2.isEmpty().
@@ -1094,6 +1147,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         if (nodeAfter == this.root && !list2.isEmpty()) {
             this.root = list2.root;
         }
+        list2.observer = this;
     }
 
 
@@ -1101,7 +1155,13 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     // DELETE METHODS //
     ////////////////////
 
-    public FibonacciHeap.HeapNode cutNode(FibonacciHeap.HeapNode node) {
+    /**
+     * Removes the node with its children from the linked list.
+     * updates length and size of list, also sends an update command upwards in the tree.
+     * updates the minNode reference of this linked list, if necessary.
+     * Time Complexity: O(logn)
+     */
+    public void cutNode(FibonacciHeap.HeapNode node) {
         if (root == node) {
             root = node.next;
         }
@@ -1114,10 +1174,14 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         }
         decreaseSize(node.getSize());
         length--;
-        return node;
     }
 
-    public FibonacciHeap.HeapNode ripNode(FibonacciHeap.HeapNode node) {
+    /**
+     * Removes the node with its children from the linked list.
+     * updates length and size of list, also sends an update command upwards in the tree.
+     * Time Complexity: O(logn)
+     */
+    public void ripNode(FibonacciHeap.HeapNode node) {
         if (root == node) {
             root = node.next;
         }
@@ -1127,28 +1191,18 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         node.eject();
         decreaseSize(node.getSize());
         length--;
-        return node;
     }
 
-
-    public FibonacciHeap.HeapNode cutKey(int key) {
-        for (FibonacciHeap.HeapNode node : this) {
-            if (node.key != key) {
-                continue;
-            }
-            return cutNode(node);
-        }
-        return null;
-    }
-
-    public void cutMin() {
-        cutNode(minNode);
-    }
 
     ///////////////////
     // OTHER METHODS //
     ///////////////////
 
+    /**
+     * Goes through all the nodes in the list to find the minimal keyed node,
+     * and stores a reference to it in the list.
+     * Time Complexity: O(m), where m is the length of the list. (n is the size of the heap).
+     */
     public void updateMin() {
         FibonacciHeap.HeapNode result = root;
         for (FibonacciHeap.HeapNode node : this) {
@@ -1168,12 +1222,12 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     public Iterator<FibonacciHeap.HeapNode> iterator() {
         return new LinkedListIterator(this);
     }
-    //////////////
-
-
 }
 
 
+/**
+ * A factory to create a linked list with a reference to its parent.
+ */
 class LinkedListFactory {
     public LinkedList createList(FibonacciHeap.HeapNode parent) {
         LinkedList result = new LinkedList();
@@ -1182,7 +1236,9 @@ class LinkedListFactory {
     }
 }
 
-
+/**
+ * A node iterator that goes through the linked list.
+ */
 class LinkedListIterator implements Iterator<FibonacciHeap.HeapNode> {
     FibonacciHeap.HeapNode current;
 
