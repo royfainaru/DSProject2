@@ -92,6 +92,9 @@ public class FibonacciHeap {
      * Returns null
      * time complexity: O(n)
      */
+
+    // test2 bug found: reOrganize calling rootList.cutNode is not good since we agreed to updateMin only after reorganization.
+    // replaced to ripNode
     private void reOrganize() {
         if (size() < 2) {
             return;
@@ -136,7 +139,7 @@ public class FibonacciHeap {
                 }
 
                 // Cut the child from the root list and insert the child into the parent children list
-                tmpParent.insertChild(rootList.cutNode(tmpChild));
+                tmpParent.insertChild(rootList.ripNode(tmpChild));
 
                 // Update the rank counter
                 updateCounter(i, rankCounter);
@@ -760,14 +763,14 @@ public class FibonacciHeap {
             HeapNode originalPrev = prev;
 
             // Connect prev node to the next node
-            if (hasPrev()) {
+            if (originalPrev != null) {
                 originalPrev.setNext(originalNext);
                 setPrev(null);
             }
 
             // Connect next node to the prev node
-            if (hasNext()) {
-                next.setPrev(originalPrev);
+            if (originalNext != null) {
+                originalNext.setPrev(originalPrev);
                 setNext(null);
             }
 
@@ -848,10 +851,12 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         FibonacciHeap.HeapNode nodeToDelete = minNode;
         // Saves children of the node that is about to be deleted to insert them later
         LinkedList children = nodeToDelete.children;
+        // Save nodeToDelete.next pointer to use planeBefore
+        FibonacciHeap.HeapNode nodeAfter = nodeToDelete.next;
         // Deletes the node from the list (Linked list cut is equivalent to Node delete with children)
         ripNode(nodeToDelete);
         // Plants the deleted node children nodes according to his old location in the list
-        plantBefore(children, nodeToDelete.next);
+        plantBefore(children, nodeAfter);
     }
 
 
@@ -974,6 +979,11 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @param delta the increment in this list size
      */
     public void increaseSize(int delta) {
+        // Trivial case.
+        if (delta == 0) {
+            return;
+        }
+
         // Calculate new size and call size setter
         int newSize = size + delta;
         setSize(newSize);
@@ -1070,6 +1080,8 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @param list2     the list to be planted to this list
      * @param nodeAfter the node to be after the planted list. null iff annex
      */
+    // TEST 2 bug found - if we plant a list before the root, the root of list2 becomes the new root of the list.
+    // however, that should have included an exclusion to the case where list2.isEmpty().
     public void plantBefore(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
         list2.parent = this.parent;
         if (nodeAfter == null) {
@@ -1079,7 +1091,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         nodeAfter.plantPrev(list2);
         this.length += list2.length;
         increaseSize(list2.size);
-        if (nodeAfter == this.root) {
+        if (nodeAfter == this.root && !list2.isEmpty()) {
             this.root = list2.root;
         }
     }
@@ -1105,7 +1117,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         return node;
     }
 
-    public void ripNode(FibonacciHeap.HeapNode node) {
+    public FibonacciHeap.HeapNode ripNode(FibonacciHeap.HeapNode node) {
         if (root == node) {
             root = node.next;
         }
@@ -1115,6 +1127,7 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
         node.eject();
         decreaseSize(node.getSize());
         length--;
+        return node;
     }
 
 
