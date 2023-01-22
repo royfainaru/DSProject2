@@ -532,7 +532,7 @@ public class FibonacciHeap {
             }
 
             // Saves the size of children linked list to compare as indicator for changes in the subtrees
-            int childrenSizeBefore = children.size;
+            int childrenLengthBefore = children.length;
             // Recursive call on the children linked list in order to find the node with the key to decrease
             HeapNode returnedNode = children.listDecreaseKey(key, d, heap);
 
@@ -542,7 +542,7 @@ public class FibonacciHeap {
                 // only cuts and marks parent if parent node is not a root node in the heap forest
                 if (hasParent()) {
                     // If a child node was cut for this node, the length of children linked list was decreased
-                    if (childrenSizeBefore > children.size) {
+                    if (childrenLengthBefore > children.length) {
                         // If current node was not marked before the operation
                         if (!getMark()) {
                             // The setMark method return value indicates if changes in the node mark were made by the operation
