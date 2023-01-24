@@ -1,0 +1,21 @@
+╮
+╰── ╭────────────────╮
+    │ Key: 2         │
+    ├────────────────┤
+    │ Rank: 1        │
+    │ Marked: false  │
+    │ Parent: (null) │
+    │ Next: (null)   │
+    │ Prev: (null)   │
+    │ Child: 3       │
+    ╰────────────────╯
+    ╰── ╭───────────────╮
+        │ Key: 3        │
+        ├───────────────┤
+        │ Rank: 0       │
+        │ Marked: false │
+        │ Parent: 2     │
+        │ Next: (null)  │
+        │ Prev: (null)  │
+        │ Child: (null) │
+        ╰───────────────╯

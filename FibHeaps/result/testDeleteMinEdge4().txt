@@ -1,0 +1,31 @@
+╮
+├── ╭────────────────╮
+│   │ Key: 3         │
+│   ├────────────────┤
+│   │ Rank: 1        │
+│   │ Marked: false  │
+│   │ Parent: (null) │
+│   │ Next: 2        │
+│   │ Prev: (null)   │
+│   │ Child: 4       │
+│   ╰────────────────╯
+│   ╰── ╭───────────────╮
+│       │ Key: 4        │
+│       ├───────────────┤
+│       │ Rank: 0       │
+│       │ Marked: false │
+│       │ Parent: 3     │
+│       │ Next: (null)  │
+│       │ Prev: (null)  │
+│       │ Child: (null) │
+│       ╰───────────────╯
+╰── ╭────────────────╮
+    │ Key: 2         │
+    ├────────────────┤
+    │ Rank: 0        │
+    │ Marked: false  │
+    │ Parent: (null) │
+    │ Next: (null)   │
+    │ Prev: 3        │
+    │ Child: (null)  │
+    ╰────────────────╯

@@ -77,3 +77,37 @@ public class Theoretical {
 
 
 }
+
+
+class Q2 {
+    final int[] iValues = {6, 8, 10, 12, 14};
+
+    public static void main(String[] args) {
+        System.out.println(Arrays.toString(Q2ForI(14)));
+    }
+
+    public static int m(int i) {
+        return (int)Math.pow(3, i) - 1;
+    }
+
+    public static void Q2Inserts(FibonacciHeap heap, int i) {
+        for (int k = 0; k <= m(i); k++) {
+            heap.insert(k);
+        }
+    }
+
+    public static void Q2Deletes(FibonacciHeap heap, int i) {
+        for (int j = 1; j <= (3*m(i))/4; j++) {
+            heap.deleteMin();
+        }
+    }
+
+
+    public static long[] Q2ForI(int i) {
+        long initTime = System.currentTimeMillis();
+        FibonacciHeap heap = new FibonacciHeap();
+        Q2Inserts(heap, i);
+        Q2Deletes(heap, i);
+        return new long[]{System.currentTimeMillis() - initTime, (long)FibonacciHeap.totalLinks(), (long)FibonacciHeap.totalCuts(), heap.potential()};
+    }
+}
