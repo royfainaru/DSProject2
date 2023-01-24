@@ -106,6 +106,12 @@ public class FibonacciHeap {
             HeapNode other = query[node.rank()];
             // Remove all nodes from current query's rank position (to move into the next rank's place).
             query[node.rank()] = null;
+
+            // TMP
+            //
+            //
+
+
             // Decide which node to be the parent of the other, perform the insertion.
             if (node.getKey() < other.getKey()) {
                 // MIGHT BE PROBLEMATIC
@@ -139,7 +145,7 @@ public class FibonacciHeap {
         if (size() < 2) {
             return;
         }
-        HeapNode[] query = new HeapNode[maxRankUpperBound() + 1];
+        HeapNode[] query = new HeapNode[maxRankUpperBound() + 2];
         for (HeapNode treeRoot : rootList) {
             link(query, treeRoot);
         }
