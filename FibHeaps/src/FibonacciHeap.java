@@ -145,7 +145,7 @@ public class FibonacciHeap {
         if (size() < 2) {
             return;
         }
-        HeapNode[] query = new HeapNode[maxRankUpperBound() + 2];
+        HeapNode[] query = new HeapNode[maxRankUpperBound() + 1];
         for (HeapNode treeRoot : rootList) {
             link(query, treeRoot);
         }
@@ -863,6 +863,11 @@ public class FibonacciHeap {
         }
 }
 
+/**
+ * LinkedList class that stores HeapNodes, also has a pointer to the minNode
+ * and a length and size attributes that update according to the stored node's
+ * size. a size is the total number of nodes stored in the current list, and all their offsprings.
+ */
 class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
     FibonacciHeap.HeapNode root;
     FibonacciHeap.HeapNode tail;
@@ -884,8 +889,6 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @return HeapNode
      * time complexity: O(1)
      */
-
-    // TEST 2 found bug : ripNode(nodeToDelete) initiates nodeToDelete.next pointer
     public void deleteMin() {
         // Saves pointer to the node that is about to be deleted to use the location pointers later
         FibonacciHeap.HeapNode nodeToDelete = minNode;
@@ -1138,8 +1141,6 @@ class LinkedList implements Iterable<FibonacciHeap.HeapNode> {
      * @param nodeAfter the node to be after the planted list. null iff annex
      *                  Time Complexity: O(logn)
      */
-    // TEST 2 bug found - if we plant a list before the root, the root of list2 becomes the new root of the list.
-    // however, that should have included an exclusion to the case where list2.isEmpty().
     public void plantBefore(LinkedList list2, FibonacciHeap.HeapNode nodeAfter) {
         list2.parent = this.parent;
         if (nodeAfter == null) {
